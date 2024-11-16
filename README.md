@@ -29,7 +29,7 @@
 
 1. **Fork** 到自己的仓库  
 
-2. 进入到自己的仓库，点击 `Settings` -> `Secrets` -> `New repository secret` 按钮，添加环境变量
+2. 进入到自己的仓库，点击 `Settings` -> `Secrets and variables` -> `New repository secret` 按钮，添加环境变量
 
 3. 进入到自己的仓库，点击 `Actions` -> `Set up a workflow yourself` 按钮，选择对应的 `workflow` 填写环境变量，然后点击 `Start commit` 按钮，就可以运行自动化运行脚本了。
 
