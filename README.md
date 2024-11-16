@@ -23,7 +23,7 @@
 
 ### 后期计划 📅
 
-- [] 暂时没有想到什么，如果您有想法，欢迎提交 [issue](https://github.com/rento666/GithubActionsList/issues)
+- [ ] 暂时没有想到什么，如果您有想法，欢迎提交 [issue](https://github.com/rento666/GithubActionsList/issues)
 
 ## 快速开始 🚀
 

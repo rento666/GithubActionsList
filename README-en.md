@@ -23,7 +23,7 @@ Just <b>fork</b> it to your repository, fill in the environment variables, and s
 
 ### Future Plans 📅
 
-- [] If you have an idea, please feel free to submit an [issue](https://github.com/rento666/GithubActionsList/issues)
+- [ ] If you have an idea, please feel free to submit an [issue](https://github.com/rento666/GithubActionsList/issues)
 
 ## Quick Start 🚀
 
