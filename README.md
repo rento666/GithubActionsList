@@ -1,11 +1,11 @@
 <div align="center">
-<h1 align="center">github-actions-list 💸</h1>
+<h1 align="center">GithubActionsList 💸</h1>
 
 <p align="center">
-  <a href="https://github.com/rento666/github-actions-list/stargazers"><img src="https://img.shields.io/github/stars/rento666/github-actions-list.svg?style=for-the-badge" alt="Stargazers"></a>
-  <a href="https://github.com/rento666/github-actions-list/issues"><img src="https://img.shields.io/github/issues/rento666/github-actions-list.svg?style=for-the-badge" alt="Issues"></a>
-  <a href="https://github.com/rento666/github-actions-list/network/members"><img src="https://img.shields.io/github/forks/rento666/github-actions-list.svg?style=for-the-badge" alt="Forks"></a>
-  <a href="https://github.com/rento666/github-actions-list/blob/main/LICENSE"><img src="https://img.shields.io/github/license/rento666/github-actions-list.svg?style=for-the-badge" alt="License"></a>
+  <a href="https://github.com/rento666/GithubActionsList/stargazers"><img src="https://img.shields.io/github/stars/rento666/GithubActionsList.svg?style=for-the-badge" alt="Stargazers"></a>
+  <a href="https://github.com/rento666/GithubActionsList/issues"><img src="https://img.shields.io/github/issues/rento666/GithubActionsList.svg?style=for-the-badge" alt="Issues"></a>
+  <a href="https://github.com/rento666/GithubActionsList/network/members"><img src="https://img.shields.io/github/forks/rento666/GithubActionsList.svg?style=for-the-badge" alt="Forks"></a>
+  <a href="https://github.com/rento666/GithubActionsList/blob/main/LICENSE"><img src="https://img.shields.io/github/license/rento666/GithubActionsList.svg?style=for-the-badge" alt="License"></a>
 </p>
 
 <br>
@@ -23,7 +23,7 @@
 
 ### 后期计划 📅
 
-- [] 暂时没有想到什么，如果您有想法，欢迎提交 [issue](https://github.com/rento666/github-actions-list/issues)
+- [] 暂时没有想到什么，如果您有想法，欢迎提交 [issue](https://github.com/rento666/GithubActionsList/issues)
 
 ## 快速开始 🚀
 
@@ -35,8 +35,8 @@
 
 ## 反馈建议 📢
 
-- 可以提交 [issue](https://github.com/rento666/github-actions-list/issues)  
-  或者 [pull request](https://github.com/rento666/github-actions-list/pulls)。
+- 可以提交 [issue](https://github.com/rento666/GithubActionsList/issues)  
+  或者 [pull request](https://github.com/rento666/GithubActionsList/pulls)。
 
 ## 许可证 📝
 
@@ -44,4 +44,4 @@
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=rento666/github-actions-list&type=Date)](https://star-history.com/#rento666/github-actions-list&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=rento666/GithubActionsList&type=Date)](https://star-history.com/#rento666/GithubActionsList&Date)
