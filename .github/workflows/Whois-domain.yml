@@ -19,13 +19,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Install dependencies
         run: npm install axios nodemailer
 
       - name: Monitor domain and notify
-        run: node monitor.js
+        run: node Whois-domain/monitor.js
         env:
           DOMAIN: ${{ secrets.DOMAIN }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
