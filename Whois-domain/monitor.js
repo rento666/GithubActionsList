@@ -9,18 +9,12 @@ const SMTP_PORT = process.env.SMTP_PORT || 587;   // SMTP 服务器端口
 const SMTP_USER = process.env.SMTP_USER || 'your-email@example.com';   // 发件人邮箱地址
 const SMTP_PASS = process.env.SMTP_PASS || 'your-email-password';   // 发件人邮箱密码
 const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || 'recipient@example.com';   // 收件人邮箱地址
-const NOTIFY_ON_START = process.env.NOTIFY_ON_START === 'true'; // 是否在启动时发送通知
 const NOTIFY_WARNINGS = process.env.NOTIFY_WARNINGS === 'true'; // 是否发送警告邮件
 const NOTIFY_SUCCESS = process.env.NOTIFY_SUCCESS === 'true'; // 是否发送成功邮件
 const NOTIFY_ERRORS = process.env.NOTIFY_ERRORS === 'true'; // 是否发送错误邮件
 
 (async () => {
   try {
-    if (NOTIFY_ON_START) {
-      console.log('📧 Sending start notification email...');
-      await sendEmail('Script Started Successfully', `The monitoring script for domain "${DOMAIN}" has started successfully.`);
-    }
-
     console.log(`Checking domain: ${DOMAIN}`);
     const response = await axios.get(API_URL + DOMAIN);
     const data = response.data;

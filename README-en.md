@@ -17,7 +17,7 @@ Just <b>fork</b> it to your repository, fill in the environment variables, and s
 
 </div>
 
-## Features 🎯
+## Features 🎯{#jblb}
 
 - [x] Use the free and public service API to monitor the status of domain names by performing WHOIS, and send email notifications when the registration application is made
 
@@ -29,9 +29,11 @@ Just <b>fork</b> it to your repository, fill in the environment variables, and s
 
 1. **Fork** to your own repository  
 
-2. Go to your repository and click the 'Settings' -> 'Secrets and variables' -> 'New repository secret' button to add environment variables
+2. Go to your repository and click the `Settings` -> `Secrets and variables` -> `Actions` -> `New repository secret` button to add project environment variables
 
-3. Go to your own repository, click the 'Actions' -> 'Set up a workflow yourself' button, select the corresponding 'workflow' to fill in the environment variables, and then click the 'Start commit' button to run the automation running script.
+3. Q: What environment variables do I need to add?   A: Please find the corresponding project in [Features 🎯](#features-jblb) and click on the Environment Variable Documentation to view it.
+
+4. Go to your own repository, click the `Actions` -> select the corresponding `workflow`, and then click the `Start commit` button to run the automation running script.
 
 ## Reference Projects 📢
 

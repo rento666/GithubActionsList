@@ -17,7 +17,7 @@
 
 </div>
 
-## 脚本列表 🎯
+## 脚本列表 🎯{#jblb}
 
 - [x] 利用免费、公益API执行WHOIS监控域名状态，可注册申请时发送邮件通知 [环境变量文档 | Doc](./Whois-domain/Doc.md)
 
@@ -29,9 +29,12 @@
 
 1. **Fork** 到自己的仓库  
 
-2. 进入到自己的仓库，点击 `Settings` -> `Secrets and variables` -> `New repository secret` 按钮，添加环境变量
+2. 进入到自己的仓库，点击 `Settings` -> `Secrets and variables` -> `Actions` -> `New repository secret` 按钮，添加环境变量
 
-3. 进入到自己的仓库，点击 `Actions` -> `Set up a workflow yourself` 按钮，选择对应的 `workflow` 填写环境变量，然后点击 `Start commit` 按钮，就可以运行自动化运行脚本了。
+3. Q: 都需要添加哪些环境变量？   A: 请在[脚本列表 🎯](#脚本列表-jblb)处找到对应项目，然后点击**环境变量文档**查看。
+
+4. 进入到自己的仓库，点击 `Actions` -> 选择对应的 `workflow` ，然后点击 `Start commit` 按钮，就可以运行自动化运行脚本了。
+
 
 ## 反馈建议 📢
 
