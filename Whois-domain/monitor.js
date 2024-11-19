@@ -12,6 +12,7 @@ const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || 'recipient@example.com';   // �
 const NOTIFY_WARNINGS = process.env.NOTIFY_WARNINGS === 'true'; // 是否发送警告邮件
 const NOTIFY_SUCCESS = process.env.NOTIFY_SUCCESS === 'true'; // 是否发送成功邮件
 const NOTIFY_ERRORS = process.env.NOTIFY_ERRORS === 'true'; // 是否发送错误邮件
+const LANGUAGE = process.env.LANGUAGE || 'zh'; // 默认为中文
 
 (async () => {
   try {
@@ -24,35 +25,65 @@ const NOTIFY_ERRORS = process.env.NOTIFY_ERRORS === 'true'; // 是否发送错�
     const daysLeft = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
 
     if (daysLeft <= 30) {
-      const warningMessage = `⚠️ Warning: Domain ${DOMAIN} is expiring in ${daysLeft} days!`;
-      console.log(warningMessage);
+      let warningMessage = '';
+      if(LANGUAGE === 'zh'){
+        warningMessage = `⚠️ 警告: 域名 ${DOMAIN} 即将在 ${daysLeft} 天后到期!`;
+      }else {
+        warningMessage = `⚠️ Warning: Domain ${DOMAIN} is expiring in ${daysLeft} days!`;
+      }
       if (NOTIFY_WARNINGS) {
-        await sendEmail(`⚠️ Domain ${DOMAIN} Expiring Soon`, warningMessage);
+        if(LANGUAGE === 'zh'){
+          await sendEmail(`⚠️ 域名 ${DOMAIN} 天到期`, warningMessage);
+        }
+        else {
+          await sendEmail(`⚠️ Domain ${DOMAIN} Expiring Soon`, warningMessage);
+        }
       }
     } else {
-      const successMessage = `✅ Domain ${DOMAIN} is valid for another ${daysLeft} days.`;
-      console.log(successMessage);
+      let successMessage = '';
+      if(LANGUAGE === 'zh'){
+        successMessage = `✅ 域名 ${DOMAIN} 有效期剩余 ${daysLeft} 天。`;
+      }else {
+        successMessage = `✅ Domain ${DOMAIN} is valid for another ${daysLeft} days.`;
+      }
       if (NOTIFY_SUCCESS) {
-        await sendEmail(`✅ Domain ${DOMAIN} Status`, successMessage);
+        if(LANGUAGE === 'zh'){
+          await sendEmail(`✅ 域名 ${DOMAIN} 状态`, successMessage);
+        }
+        else {
+          await sendEmail(`✅ Domain ${DOMAIN} Status`, successMessage);
+        }
       }
     }
   } catch (error) {
     if (error.response) {
       const { code, msg } = error.response.data;
-      const apiErrorMessage = `API Error: ${msg} (Code: ${code})`;
-      console.error(apiErrorMessage);
+      let apiErrorMessage = '';
+      if(LANGUAGE === 'zh'){
+        apiErrorMessage = `API 错误: ${msg} (代码: ${code})`;
+      }else {
+        apiErrorMessage = `API Error: ${msg} (Code: ${code})`;
+      }
       if (NOTIFY_ERRORS) {
-        await sendEmail(`❌ API Error for ${DOMAIN}`, apiErrorMessage);
+        if(LANGUAGE === 'zh'){
+          await sendEmail(`❌ API 错误：${DOMAIN}`, apiErrorMessage);
+        }else {
+          await sendEmail(`❌ API Error for ${DOMAIN}`, apiErrorMessage);
+        }
       }
     } else {
       const requestErrorMessage = `Request failed: ${error.message}`;
-      console.error(requestErrorMessage);
       if (NOTIFY_ERRORS) {
-        await sendEmail(`❌ Request Error for ${DOMAIN}`, requestErrorMessage);
+        if(LANGUAGE === 'zh'){
+          await sendEmail(`❌ 请求错误：${DOMAIN}`, requestErrorMessage);
+        }else {
+          await sendEmail(`❌ Request Error for ${DOMAIN}`, requestErrorMessage);
+        }
       }
     }
   }
 })();
+
 
 // 邮件发送函数
 async function sendEmail(subject, text) {

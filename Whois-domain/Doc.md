@@ -7,6 +7,7 @@
 | 名称            | 必填  | 默认值                             | 说明                               |
 |:----------------|:-----:|:--------------------------------:|:----------------------------------:|
 | `API_URL`          | no    | https://uapis.cn/api/whois.php?domain=                               | API 接口地址，目前仅支持GET：`API_URL + DOMAIN`查询 |
+| `LANGUAGE`  | no   | zh                               | 发送内容的语言，目前只有中文和English，if need to set English, Please set this property to a value other than zh'  |
 | `DOMAIN`       | yes    | example.com                               | 要监控的域名  |
 | `SMTP_HOST`    | yes    | smtp.example.com                               | SMTP 服务器地址  |
 | `SMTP_PORT`    | no    | 587                               | SMTP 服务器端口     |
