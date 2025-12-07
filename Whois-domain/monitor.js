@@ -2,7 +2,7 @@ const axios = require('axios');
 const nodemailer = require('nodemailer');
 
 // 从环境变量中读取配置
-const API_URL = process.env.API_URL || 'https://uapis.cn/api/whois.php?domain=';
+const API_URL = process.env.API_URL || 'https://uapis.cn/api/v1/network/whois';
 const DOMAIN = process.env.DOMAIN || 'example.com';   // 要监控的域名
 const SMTP_HOST = process.env.SMTP_HOST || 'smtp.example.com';   // SMTP 服务器地址
 const SMTP_PORT = process.env.SMTP_PORT || 587;   // SMTP 服务器端口
@@ -17,10 +17,10 @@ const LANGUAGE = process.env.LANGUAGE || 'zh'; // 默认为中文
 (async () => {
   try {
     console.log(`Checking domain: ${DOMAIN}`);
-    const response = await axios.get(API_URL + DOMAIN);
-    const data = response.data;
+    const response = await axios.get(`${API_URL}?domain=${DOMAIN}&format=json`);
+    const data = response.data.whois.domain;
 
-    const expDate = new Date(data.exp_date);
+    const expDate = new Date(data.expiration_date);
     const now = new Date();
     const daysLeft = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
 
@@ -57,12 +57,12 @@ const LANGUAGE = process.env.LANGUAGE || 'zh'; // 默认为中文
     }
   } catch (error) {
     if (error.response) {
-      const { code, msg } = error.response.data;
+      const { code, message } = error.response.data;
       let apiErrorMessage = '';
       if(LANGUAGE === 'zh'){
-        apiErrorMessage = `API 错误: ${msg} (代码: ${code})`;
+        apiErrorMessage = `API 错误: ${message} (代码: ${code})`;
       }else {
-        apiErrorMessage = `API Error: ${msg} (Code: ${code})`;
+        apiErrorMessage = `API Error: ${message} (Code: ${code})`;
       }
       if (NOTIFY_ERRORS) {
         if(LANGUAGE === 'zh'){
