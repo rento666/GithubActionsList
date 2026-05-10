@@ -27,6 +27,21 @@
 
 - [ ] 暂时没有想到什么，如果您有想法，欢迎提交 [issue](https://github.com/rento666/GithubActionsList/issues)
 
+## 运行开关 🔌
+
+每个脚本都支持通过 **Repository Variables** 控制是否定时运行：
+
+| 变量名 | 作用 | 默认 |
+|:-------|:-----|:-----|
+| `ENABLE_ALL` | 全局总开关，`false` 时所有脚本停止定时运行 | 未设置（启用） |
+| `ENABLE_XBGAME` | XBGame 签到开关 | 未设置（启用） |
+| `ENABLE_WHOIS` | 域名监控开关 | 未设置（启用） |
+| `ENABLE_KEEP_ALIVE` | 仓库保活开关 | 未设置（启用） |
+
+设置方式：仓库 `Settings` → `Secrets and variables` → `Actions` → `Variables` 标签页 → `New repository variable`
+
+> 💡 开关仅影响 **定时触发**，手动触发和 push 触发不受开关限制。
+
 ## 快速开始 🚀
 
 1. **Fork** 到自己的仓库  
@@ -35,7 +50,9 @@
 
 3. **邮件通知（可选）**：如需邮件提醒，请先配置 [共享邮件变量](./utils/Doc.md)，再在各脚本中开启对应开关
 
-4. 进入到自己的仓库，点击 `Actions` → 选择对应的 `workflow` → 点击 `Run workflow`，即可运行
+4. **运行开关（可选）**：如需控制哪些脚本自动运行，在 Variables 标签页添加对应变量，值设为 `false` 即可关闭
+
+5. 进入到自己的仓库，点击 `Actions` → 选择对应的 `workflow` → 点击 `Run workflow`，即可运行
 
 ## 反馈建议 📢
 
@@ -48,4 +65,4 @@
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/chart?repos=rento666/GithubActionsList&type=date&legend-top-left)](https://www.star-history.com/?repos=rento666%2FGithubActionsList&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/chart?repos=rento666%2FGithubActionsList&type=date&legend-top-left)](https://www.star-history.com/?repos=rento666%2FGithubActionsList&type=date&legend-top-left)

@@ -22,12 +22,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check switch
+        id: switch
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            if [ "${{ vars.ENABLE_ALL }}" = "false" ]; then
+              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "⏸️ ENABLE_ALL is false, skipping scheduled run"
+            elif [ "${{ vars.ENABLE_KEEP_ALIVE }}" = "false" ]; then
+              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "⏸️ ENABLE_KEEP_ALIVE is false, skipping scheduled run"
+            else
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout repository
+        if: steps.switch.outputs.skip != 'true'
         uses: actions/checkout@v3
         with:
           persist-credentials: true
 
       - name: Setup keep-alive branch
+        if: steps.switch.outputs.skip != 'true'
         run: |
           git fetch origin keep-alive 2>/dev/null || true
           if git show-ref --verify --quiet refs/remotes/origin/keep-alive; then
@@ -37,17 +56,20 @@ jobs:
           fi
 
       - name: Set up Node.js
+        if: steps.switch.outputs.skip != 'true'
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
       - name: Update keep-alive data
+        if: steps.switch.outputs.skip != 'true'
         run: node keep-alive/update.js
         env:
           KEEP_ALIVE_DATA: ${{ github.event.inputs.data || '🔄 Auto keep-alive tick' }}
           KEEP_ALIVE_SOURCE: ${{ github.event.inputs.source || 'keep-alive' }}
 
       - name: Commit and push
+        if: steps.switch.outputs.skip != 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"

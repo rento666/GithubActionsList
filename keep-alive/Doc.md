@@ -48,6 +48,17 @@ data/
 
 > 💡 其他脚本如需接入，在对应 workflow 中添加 "Save result to keep-alive branch" 步骤，设置 `KEEP_ALIVE_DATA` 和 `KEEP_ALIVE_SOURCE` 环境变量即可。
 
+## 运行开关
+
+本脚本支持通过 Repository Variables 控制是否自动运行：
+
+| 名称 | 类型 | 默认值 | 说明 |
+|:-----|:----:|:------:|:-----|
+| `ENABLE_ALL` | Variable | 未设置（即启用） | 全局总开关，设为 `false` 时所有脚本停止定时运行 |
+| `ENABLE_KEEP_ALIVE` | Variable | 未设置（即启用） | 本脚本开关，设为 `false` 时仅本脚本停止定时运行 |
+
+> 💡 开关仅影响 **定时触发**，手动触发不受开关限制。
+
 ## 手动触发
 
 在 Actions 页面选择 `Keep Alive` workflow，点击 `Run workflow` 可输入自定义数据和来源标识。

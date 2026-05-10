@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'XBGame/**'
+      - 'utils/**'
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *' # UTC 0点 = 北京时间8点
@@ -16,20 +19,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check switch
+        id: switch
+        run: |
+          # 定时触发时检查开关，手动/push触发不受限制
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            if [ "${{ vars.ENABLE_ALL }}" = "false" ]; then
+              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "⏸️ ENABLE_ALL is false, skipping scheduled run"
+            elif [ "${{ vars.ENABLE_XBGAME }}" = "false" ]; then
+              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "⏸️ ENABLE_XBGAME is false, skipping scheduled run"
+            else
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout repository
+        if: steps.switch.outputs.skip != 'true'
         uses: actions/checkout@v3
         with:
           persist-credentials: true
 
       - name: Set up Node.js
+        if: steps.switch.outputs.skip != 'true'
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
       - name: Install dependencies
+        if: steps.switch.outputs.skip != 'true'
         run: npm install axios nodemailer
 
       - name: XBGame Login & Check-in
+        if: steps.switch.outputs.skip != 'true'
         id: checkin
         continue-on-error: true
         run: |
@@ -40,15 +65,15 @@ jobs:
           XB_PASSWORD: ${{ secrets.XB_PASSWORD }}
           XB_NOTIFY_SUCCESS: ${{ secrets.XB_NOTIFY_SUCCESS }}
           XB_NOTIFY_ERRORS: ${{ secrets.XB_NOTIFY_ERRORS }}
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          NOTIFY_SMTP_HOST: ${{ secrets.NOTIFY_SMTP_HOST }}
+          NOTIFY_SMTP_PORT: ${{ secrets.NOTIFY_SMTP_PORT }}
+          NOTIFY_SMTP_USER: ${{ secrets.NOTIFY_SMTP_USER }}
+          NOTIFY_SMTP_PASS: ${{ secrets.NOTIFY_SMTP_PASS }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
 
       # 将签到结果推送到 keep-alive 分支
       - name: Save result to keep-alive branch
-        if: always()
+        if: steps.switch.outputs.skip != 'true' && always()
         run: |
           git fetch origin keep-alive 2>/dev/null || true
           if git show-ref --verify --quiet refs/remotes/origin/keep-alive; then
@@ -67,5 +92,5 @@ jobs:
 
       # 如果脚本执行失败，标记 workflow 失败
       - name: Check script result
-        if: steps.checkin.outcome == 'failure'
+        if: steps.switch.outputs.skip != 'true' && steps.checkin.outcome == 'failure'
         run: exit 1
