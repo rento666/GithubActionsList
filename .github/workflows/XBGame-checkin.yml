@@ -1,4 +1,4 @@
-name: Monitor Domain Expiry
+name: XBGame Check-in
 
 on:
   push:
@@ -6,10 +6,10 @@ on:
       - main
   workflow_dispatch:
   schedule:
-    - cron: '0 1 * * *' # UTC 1点 = 北京时间9点
+    - cron: '0 0 * * *' # UTC 0点 = 北京时间8点
 
 jobs:
-  check-domain:
+  check-in:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,26 +26,24 @@ jobs:
       - name: Install dependencies
         run: npm install axios nodemailer
 
-      - name: Monitor domain and notify
-        id: monitor
+      - name: XBGame Login & Check-in
+        id: checkin
         continue-on-error: true
         run: |
           set -o pipefail
-          node Whois-domain/monitor.js 2>&1 | tee /tmp/script-output.txt
+          node XBGame/checkin.js 2>&1 | tee /tmp/script-output.txt
         env:
-          WHOIS_API_URL: ${{ secrets.WHOIS_API_URL }}
-          WHOIS_DOMAIN: ${{ secrets.WHOIS_DOMAIN }}
-          WHOIS_LANGUAGE: ${{ secrets.WHOIS_LANGUAGE }}
-          WHOIS_NOTIFY_WARNINGS: ${{ secrets.WHOIS_NOTIFY_WARNINGS }}
-          WHOIS_NOTIFY_SUCCESS: ${{ secrets.WHOIS_NOTIFY_SUCCESS }}
-          WHOIS_NOTIFY_ERRORS: ${{ secrets.WHOIS_NOTIFY_ERRORS }}
+          XB_USERNAME: ${{ secrets.XB_USERNAME }}
+          XB_PASSWORD: ${{ secrets.XB_PASSWORD }}
+          XB_NOTIFY_SUCCESS: ${{ secrets.XB_NOTIFY_SUCCESS }}
+          XB_NOTIFY_ERRORS: ${{ secrets.XB_NOTIFY_ERRORS }}
           NOTIFY_SMTP_HOST: ${{ secrets.NOTIFY_SMTP_HOST }}
           NOTIFY_SMTP_PORT: ${{ secrets.NOTIFY_SMTP_PORT }}
           NOTIFY_SMTP_USER: ${{ secrets.NOTIFY_SMTP_USER }}
           NOTIFY_SMTP_PASS: ${{ secrets.NOTIFY_SMTP_PASS }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
 
-      # 将域名检测结果推送到 keep-alive 分支
+      # 将签到结果推送到 keep-alive 分支
       - name: Save result to keep-alive branch
         if: always()
         run: |
@@ -56,15 +54,15 @@ jobs:
             git checkout -b keep-alive
           fi
           export KEEP_ALIVE_DATA="$(cat /tmp/script-output.txt)"
-          export KEEP_ALIVE_SOURCE="Whois-domain"
+          export KEEP_ALIVE_SOURCE="XBGame"
           node keep-alive/update.js
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add "data/"
-          git diff --staged --quiet || git commit -m "📝 域名监控数据 $(date +'%Y-%m-%d')"
+          git diff --staged --quiet || git commit -m "📝 XBGame签到数据 $(date +'%Y-%m-%d')"
           git push origin keep-alive
 
       # 如果脚本执行失败，标记 workflow 失败
       - name: Check script result
-        if: steps.monitor.outcome == 'failure'
+        if: steps.checkin.outcome == 'failure'
         run: exit 1

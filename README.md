@@ -20,6 +20,8 @@
 ## 脚本列表 🎯
 
 - [x] 利用免费、公益API执行WHOIS监控域名状态，可注册申请时发送邮件通知 [环境变量文档 | Doc](./Whois-domain/Doc.md)
+- [x] 小白游戏网自动登录+签到 [环境变量文档 | Doc](./XBGame/Doc.md)
+- [x] 仓库保活 - 定期向 keep-alive 分支推送数据，防止 GitHub 禁用定时 Workflow [环境变量文档 | Doc](./keep-alive/Doc.md)
 
 ### 后期计划 📅
 
@@ -47,10 +49,4 @@
 
 ## Star History
 
-<a href="https://star-history.com/#rento666/GithubActionsList&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=rento666/GithubActionsList&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=rento666/GithubActionsList&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=rento666/GithubActionsList&type=Date" />
- </picture>
-</a>
+[![Star History Chart](https://api.star-history.com/chart?repos=rento666/GithubActionsList&type=date&legend=top-left)](https://www.star-history.com/?repos=rento666%2FGithubActionsList&type=date&legend=top-left)

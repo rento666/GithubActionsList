@@ -4,19 +4,28 @@
 
 ## 环境变量列表
 
+### 脚本专属变量
+
 | 名称            | 必填  | 默认值                             | 说明                               |
 |:----------------|:-----:|:--------------------------------:|:----------------------------------:|
-| `API_URL`          | no    | https://uapis.cn/api/whois.php?domain=                               | API 接口地址，目前仅支持GET：`API_URL + DOMAIN`查询 |
-| `LANGUAGE`  | no   | zh                               | 发送内容的语言，目前只有中文和English，if need to set English, Please set this property to a value other than zh'  |
-| `DOMAIN`       | yes    | example.com                               | 要监控的域名  |
-| `SMTP_HOST`    | yes    | smtp.example.com                               | SMTP 服务器地址  |
-| `SMTP_PORT`    | no    | 587                               | SMTP 服务器端口     |
-| `SMTP_USER`    | yes    | your-email@example.com                               | 发件人邮箱地址  |
-| `SMTP_PASS`    | yes    | your-email-password                               | 发件人邮箱密码  |
-| `NOTIFY_EMAIL` | yes    | recipient@example.com                               | 收件人邮箱地址  |
-| `NOTIFY_WARNINGS` | yes  | false                               | 是否发送警告邮件，`true` 表示发送，**如果设置了邮件，则需要开启这一项，否则无法在域名到期30天内发送邮件** |
-| `NOTIFY_SUCCESS` | no   | false                               | 是否发送成功邮件，`true` 表示发送 |
-| `NOTIFY_ERRORS`  | no   | false                               | 是否发送错误邮件，`true` 表示发送 |
+| `WHOIS_API_URL`  | no    | https://uapis.cn/api/whois.php?domain=                               | API 接口地址，目前仅支持GET：`WHOIS_API_URL + WHOIS_DOMAIN`查询 |
+| `WHOIS_LANGUAGE`  | no   | zh                               | 发送内容的语言，目前只有中文和English，if need to set English, Please set this property to a value other than zh'  |
+| `WHOIS_DOMAIN`       | yes    | example.com                               | 要监控的域名  |
+| `WHOIS_NOTIFY_WARNINGS` | yes  | false                               | 是否发送警告邮件，`true` 表示发送，**如果设置了邮件，则需要开启这一项，否则无法在域名到期30天内发送邮件** |
+| `WHOIS_NOTIFY_SUCCESS` | no   | false                               | 是否发送成功邮件，`true` 表示发送 |
+| `WHOIS_NOTIFY_ERRORS`  | no   | false                               | 是否发送错误邮件，`true` 表示发送 |
+
+### 共享邮件配置
+
+| 名称            | 必填  | 默认值                             | 说明                               |
+|:----------------|:-----:|:--------------------------------:|:----------------------------------:|
+| `NOTIFY_SMTP_HOST`    | yes    |                               | SMTP 服务器地址  |
+| `NOTIFY_SMTP_PORT`    | no    | 587                               | SMTP 服务器端口     |
+| `NOTIFY_SMTP_USER`    | yes    |                               | 发件人邮箱地址  |
+| `NOTIFY_SMTP_PASS`    | yes    |                               | 发件人邮箱密码  |
+| `NOTIFY_EMAIL` | yes    |                               | 收件人邮箱地址  |
+
+> 💡 共享邮件配置由 `utils/notify.js` 提供，所有脚本复用同一份 SMTP 配置，无需重复设置。
 
 
 ## 示例图

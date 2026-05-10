@@ -1,0 +1,53 @@
+name: Keep Alive
+
+on:
+  workflow_dispatch:
+    inputs:
+      data:
+        description: '要保存的数据内容'
+        required: false
+        default: ''
+      source:
+        description: '数据来源标识'
+        required: false
+        default: 'keep-alive'
+  schedule:
+    - cron: '0 0 */3 * *' # 每3天 UTC 0点 (北京时间8点)
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: true
+
+      - name: Setup keep-alive branch
+        run: |
+          git fetch origin keep-alive 2>/dev/null || true
+          if git branch -r | grep -q 'origin/keep-alive'; then
+            git checkout keep-alive
+          else
+            git checkout -b keep-alive
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Update keep-alive data
+        run: node keep-alive/update.js
+        env:
+          KEEP_ALIVE_DATA: ${{ github.event.inputs.data || '🔄 Auto keep-alive tick' }}
+          KEEP_ALIVE_SOURCE: ${{ github.event.inputs.source || 'keep-alive' }}
+
+      - name: Commit and push
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add "data/"
+          git diff --staged --quiet || git commit -m "🔄 Keep alive $(date +'%Y-%m-%d')"
+          git push origin keep-alive
