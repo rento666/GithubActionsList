@@ -40,10 +40,10 @@ jobs:
           XB_PASSWORD: ${{ secrets.XB_PASSWORD }}
           XB_NOTIFY_SUCCESS: ${{ secrets.XB_NOTIFY_SUCCESS }}
           XB_NOTIFY_ERRORS: ${{ secrets.XB_NOTIFY_ERRORS }}
-          NOTIFY_SMTP_HOST: ${{ secrets.NOTIFY_SMTP_HOST }}
-          NOTIFY_SMTP_PORT: ${{ secrets.NOTIFY_SMTP_PORT }}
-          NOTIFY_SMTP_USER: ${{ secrets.NOTIFY_SMTP_USER }}
-          NOTIFY_SMTP_PASS: ${{ secrets.NOTIFY_SMTP_PASS }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
 
       # 将签到结果推送到 keep-alive 分支
@@ -51,10 +51,10 @@ jobs:
         if: always()
         run: |
           git fetch origin keep-alive 2>/dev/null || true
-          if git branch -r | grep -q 'origin/keep-alive'; then
-            git checkout keep-alive
+          if git show-ref --verify --quiet refs/remotes/origin/keep-alive; then
+            git checkout -B keep-alive origin/keep-alive
           else
-            git checkout -b keep-alive
+            git checkout -B keep-alive
           fi
           export KEEP_ALIVE_DATA="$(cat /tmp/script-output.txt)"
           export KEEP_ALIVE_SOURCE="XBGame"

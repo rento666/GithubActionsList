@@ -30,10 +30,10 @@ jobs:
       - name: Setup keep-alive branch
         run: |
           git fetch origin keep-alive 2>/dev/null || true
-          if git branch -r | grep -q 'origin/keep-alive'; then
-            git checkout keep-alive
+          if git show-ref --verify --quiet refs/remotes/origin/keep-alive; then
+            git checkout -B keep-alive origin/keep-alive
           else
-            git checkout -b keep-alive
+            git checkout -B keep-alive
           fi
 
       - name: Set up Node.js

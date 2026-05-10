@@ -31,12 +31,11 @@
 
 1. **Fork** 到自己的仓库  
 
-2. 进入到自己的仓库，点击 `Settings` -> `Secrets and variables` -> `Actions` -> `New repository secret` 按钮，添加环境变量
+2. 进入到自己的仓库，点击 `Settings` → `Secrets and variables` → `Actions` → `New repository secret`，添加环境变量
 
-3. Q: 都需要添加哪些环境变量？   A: 请在[脚本列表 🎯](#脚本列表-)处找到对应项目，然后点击**环境变量文档**查看。
+3. **邮件通知（可选）**：如需邮件提醒，请先配置 [共享邮件变量](./utils/Doc.md)，再在各脚本中开启对应开关
 
-4. 进入到自己的仓库，点击 `Actions` -> 选择对应的 `workflow` ，然后点击 `Start commit` 按钮，就可以运行自动化运行脚本了。
-
+4. 进入到自己的仓库，点击 `Actions` → 选择对应的 `workflow` → 点击 `Run workflow`，即可运行
 
 ## 反馈建议 📢
 
@@ -49,4 +48,4 @@
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/chart?repos=rento666/GithubActionsList&type=date&legend=top-left)](https://www.star-history.com/?repos=rento666%2FGithubActionsList&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/chart?repos=rento666/GithubActionsList&type=date&legend-top-left)](https://www.star-history.com/?repos=rento666%2FGithubActionsList&type=date&legend=top-left)
