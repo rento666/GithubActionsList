@@ -14,6 +14,9 @@ on:
   schedule:
     - cron: '0 0 */3 * *' # 每3天 UTC 0点 (北京时间8点)
 
+permissions:
+  contents: write
+
 jobs:
   keep-alive:
     runs-on: ubuntu-latest
