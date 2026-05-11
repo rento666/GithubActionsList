@@ -1,5 +1,5 @@
-import { post, get } from 'axios';
-import { createNotifier } from '../utils/notify';
+const axios = require('axios');
+const { createNotifier } = require('../utils/notify');
 
 // 从环境变量中读取配置
 const GLA_COOKIE = process.env.GLA_COOKIE;
@@ -53,7 +53,7 @@ const notifier = createNotifier();
 
         // ===== 签到 =====
         console.log(`🔐 正在签到 [${i + 1}/${cookies.length}]...`);
-        const checkinRes = await post(CHECKIN_API, `{"token":"${BASE_URL}"}`, {
+        const checkinRes = await axios.post(CHECKIN_API, `{"token":"${BASE_URL}"}`, {
           headers: { ...commonHeaders, 'referer': CHECKIN_API },
         });
         const checkinData = checkinRes.data;
@@ -63,7 +63,7 @@ const notifier = createNotifier();
         item.checkinMsg = checkinData?.message || '签到成功';
 
         // ===== 状态 =====
-        const statusRes = await get(STATUS_API, {
+        const statusRes = await axios.get(STATUS_API, {
           headers: { ...commonHeaders, 'referer': STATUS_API },
         });
         const statusData = statusRes.data;
@@ -77,7 +77,7 @@ const notifier = createNotifier();
         item.leftDays = `${Number(statusData.data?.leftDays || 0).toFixed(0)} 天`;
 
         // ===== 积分 =====
-        const pointsRes = await get(POINTS_API, {
+        const pointsRes = await axios.get(POINTS_API, {
           headers: { ...commonHeaders, 'referer': POINTS_API },
         });
         const pointsData = pointsRes.data;
