@@ -1,15 +1,15 @@
-name: XBGame Check-in
+name: GLaDOS Check-in
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'XBGame/**'
+      - 'GLaDOS/**'
       - 'utils/**'
   workflow_dispatch:
   schedule:
-    - cron: '40 0 * * *' # UTC 0点40分 = 北京时间8点40分
+    - cron: '30 0 * * *' # UTC 0点30分 = 北京时间8点30分
 
 permissions:
   contents: write
@@ -27,9 +27,9 @@ jobs:
             if [ "${{ vars.ENABLE_ALL }}" = "false" ]; then
               echo "skip=true" >> $GITHUB_OUTPUT
               echo "⏸️ ENABLE_ALL is false, skipping scheduled run"
-            elif [ "${{ vars.ENABLE_XBGAME }}" = "false" ]; then
+            elif [ "${{ vars.ENABLE_GLADOS }}" = "false" ]; then
               echo "skip=true" >> $GITHUB_OUTPUT
-              echo "⏸️ ENABLE_XBGAME is false, skipping scheduled run"
+              echo "⏸️ ENABLE_GLADOS is false, skipping scheduled run"
             else
               echo "skip=false" >> $GITHUB_OUTPUT
             fi
@@ -53,18 +53,17 @@ jobs:
         if: steps.switch.outputs.skip != 'true'
         run: npm install axios nodemailer
 
-      - name: XBGame Login & Check-in
+      - name: GLaDOS Check-in
         if: steps.switch.outputs.skip != 'true'
         id: checkin
         continue-on-error: true
         run: |
           set -o pipefail
-          node XBGame/checkin.js 2>&1 | tee /tmp/script-output.txt
+          node GLaDOS/checkin.js 2>&1 | tee /tmp/script-output.txt
         env:
-          XB_USERNAME: ${{ secrets.XB_USERNAME }}
-          XB_PASSWORD: ${{ secrets.XB_PASSWORD }}
-          XB_NOTIFY_SUCCESS: ${{ vars.XB_NOTIFY_SUCCESS }}
-          XB_NOTIFY_ERRORS: ${{ vars.XB_NOTIFY_ERRORS }}
+          GLA_COOKIE: ${{ secrets.GLA_COOKIE }}
+          GLA_NOTIFY_SUCCESS: ${{ vars.GLA_NOTIFY_SUCCESS }}
+          GLA_NOTIFY_ERRORS: ${{ vars.GLA_NOTIFY_ERRORS }}
           NOTIFY_SMTP_HOST: ${{ secrets.NOTIFY_SMTP_HOST }}
           NOTIFY_SMTP_PORT: ${{ secrets.NOTIFY_SMTP_PORT }}
           NOTIFY_SMTP_USER: ${{ secrets.NOTIFY_SMTP_USER }}
@@ -82,12 +81,12 @@ jobs:
             git checkout -B keep-alive
           fi
           export KEEP_ALIVE_DATA="$(cat /tmp/script-output.txt)"
-          export KEEP_ALIVE_SOURCE="XBGame"
+          export KEEP_ALIVE_SOURCE="GLaDOS"
           node keep-alive/update.js
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add "data/"
-          git diff --staged --quiet || git commit -m "📝 XBGame签到数据 $(date +'%Y-%m-%d')"
+          git diff --staged --quiet || git commit -m "📝 GLaDOS签到数据 $(date +'%Y-%m-%d')"
           git push origin keep-alive
 
       # 如果脚本执行失败，标记 workflow 失败

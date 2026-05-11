@@ -1,0 +1,77 @@
+name: WeCom Notify
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'WeCom-notify/**'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * *' # UTC 4点 = 北京时间12点
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check switch
+        id: switch
+        run: |
+          # 定时触发时检查开关，手动/push触发不受限制
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            if [ "${{ vars.ENABLE_ALL }}" = "false" ]; then
+              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "⏸️ ENABLE_ALL is false, skipping scheduled run"
+            elif [ "${{ vars.ENABLE_WECOM }}" = "false" ]; then
+              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "⏸️ ENABLE_WECOM is false, skipping scheduled run"
+            else
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout main branch
+        if: steps.switch.outputs.skip != 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        if: steps.switch.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        if: steps.switch.outputs.skip != 'true'
+        run: npm install axios
+
+      - name: Fetch keep-alive data
+        if: steps.switch.outputs.skip != 'true'
+        run: |
+          git fetch origin keep-alive 2>/dev/null || true
+          # 将 keep-alive 分支的 data 目录检出到当前工作区
+          if git show-ref --verify --quiet refs/remotes/origin/keep-alive; then
+            git checkout origin/keep-alive -- data/
+            echo "✅ 已拉取 keep-alive 分支数据"
+          else
+            echo "⚠️ keep-alive 分支不存在，跳过"
+          fi
+
+      - name: WeCom Notify
+        if: steps.switch.outputs.skip != 'true'
+        id: notify
+        continue-on-error: true
+        run: node WeCom-notify/notify.js
+        env:
+          WECOM_KEY: ${{ secrets.WECOM_KEY }}
+          WECOM_NOTIFY_ERRORS: ${{ vars.WECOM_NOTIFY_ERRORS }}
+
+      # 如果脚本执行失败，标记 workflow 失败
+      - name: Check script result
+        if: steps.switch.outputs.skip != 'true' && steps.notify.outcome == 'failure'
+        run: exit 1

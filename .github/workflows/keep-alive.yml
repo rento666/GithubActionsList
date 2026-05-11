@@ -12,7 +12,7 @@ on:
         required: false
         default: 'keep-alive'
   schedule:
-    - cron: '0 0 */3 * *' # 每3天 UTC 0点 (北京时间8点)
+    - cron: '30 0 */3 * *' # 每3天 UTC 0点30分 (北京时间8点30分)
 
 permissions:
   contents: write

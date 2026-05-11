@@ -63,9 +63,9 @@ jobs:
           WHOIS_API_URL: ${{ secrets.WHOIS_API_URL }}
           WHOIS_DOMAIN: ${{ secrets.WHOIS_DOMAIN }}
           WHOIS_LANGUAGE: ${{ secrets.WHOIS_LANGUAGE }}
-          WHOIS_NOTIFY_WARNINGS: ${{ secrets.WHOIS_NOTIFY_WARNINGS }}
-          WHOIS_NOTIFY_SUCCESS: ${{ secrets.WHOIS_NOTIFY_SUCCESS }}
-          WHOIS_NOTIFY_ERRORS: ${{ secrets.WHOIS_NOTIFY_ERRORS }}
+          WHOIS_NOTIFY_WARNINGS: ${{ vars.WHOIS_NOTIFY_WARNINGS }}
+          WHOIS_NOTIFY_SUCCESS: ${{ vars.WHOIS_NOTIFY_SUCCESS }}
+          WHOIS_NOTIFY_ERRORS: ${{ vars.WHOIS_NOTIFY_ERRORS }}
           NOTIFY_SMTP_HOST: ${{ secrets.NOTIFY_SMTP_HOST }}
           NOTIFY_SMTP_PORT: ${{ secrets.NOTIFY_SMTP_PORT }}
           NOTIFY_SMTP_USER: ${{ secrets.NOTIFY_SMTP_USER }}
