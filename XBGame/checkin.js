@@ -39,15 +39,27 @@ const notifier = createNotifier();
     const taskTotal = loginData?.task_?.total || 0;
 
     console.log('✅ 登录成功');
-    console.log(`👤 用户: ${userName} | 🏅 等级: ${lvName} | 💰 积分: ${credit} | 💵 余额: ${money} | 📋 任务: ${task}/${taskTotal}`);
+    console.log(`👤 用户昵称: ${userName} `);
+    console.log(`💰 当前积分: ${credit} `);
 
     // ===== 第二步：签到 =====
     console.log('🎯 正在签到...');
     const missionRes = await axios.post(MISSION_URL, {}, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        "authorization": `Bearer ${token}`,
+        "cccept": "application/json, text/plain, */*",
+        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6",
+        "priority": "u=1, i",
+        "sec-ch-ua": "\"Chromium\";v=\"148\", \"Microsoft Edge\";v=\"148\", \"Not/A)Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Windows\"",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "cookie": "__gads=ID=f0aea1a8b89a890b:T=1749724643:RT=1750470445:S=ALNI_MaKz89eKwupipPAf0pDSC1abzboTw; __gpi=UID=0000112c342ab8a2:T=1749724643:RT=1750470445:S=ALNI_Mauy7slOYIx_6gqSz0ZvZazrymkCA; b2_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wveGJnYW1lLm5ldCIsImlhdCI6MTc3ODQxOTI4NSwibmJmIjoxNzc4NDE5Mjg1LCJleHAiOjE3Nzk2Mjg4ODUsImRhdGEiOnsidXNlciI6eyJpZCI6IjcyODU1In19fQ.EMGSK7juq3ONneCUxD2jffXMNawj2BVDB-W7tLEm2cg; wordpress_logged_in_e4da38dd32865e3bc6ebfd6abd8cd605=u7155100290568557%7C1778980885%7CSiUKcRN1dixphltCgH33LqDqWxpeOZfWL2vFM2e2ABA%7Cfbecb4e5610563dd0a236e6f2eb1f3c9b5ddc52aef4ccdbeccb13ebe3a2eafc2; b2_back_url=https://xbgame.net/vips; server_name_session=0482cb5d2a627927b3bbb81977c4c78d; darkStyle=1; PHPSESSID=42beqk3duu8gpv0fpsb1rl5bri; gg_info=" + Math.floor(Date.now() / 1000)
       },
     });
+
 
     const missionData = missionRes.data;
     let checkinSummary = '';

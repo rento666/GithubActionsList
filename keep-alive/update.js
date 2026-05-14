@@ -30,7 +30,7 @@ fs.mkdirSync(dataDir, { recursive: true });
 
 const timestamp = `${year}-${month}-${day} ${String(beijing.getUTCHours()).padStart(2, '0')}:${String(beijing.getUTCMinutes()).padStart(2, '0')}:${String(beijing.getUTCSeconds()).padStart(2, '0')}`;
 
-const entry = `[${timestamp}] [${source}]\n${content}\n${'─'.repeat(50)}\n`;
+const entry = `[${timestamp}] [${source}]\n${content}\n${'─'.repeat(10)}\n`;
 
 fs.appendFileSync(filePath, entry, 'utf-8');
 console.log(`📝 [${source}] 数据已保存到 ${filePath}`);

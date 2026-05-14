@@ -12,68 +12,70 @@ const LANGUAGE = process.env.WHOIS_LANGUAGE || 'zh';
 const notifier = createNotifier();
 
 (async () => {
+  // 日志头部（固定格式，和其他任务统一）
+  console.log(`Checking domain: ${DOMAIN}`);
+  
   try {
-    console.log(`Checking domain: ${DOMAIN}`);
     const response = await axios.get(`${API_URL}?domain=${DOMAIN}&format=json`);
     const data = response.data.whois.domain;
 
+    // 解析域名到期时间
     const expDate = new Date(data.expiration_date);
     const now = new Date();
     const daysLeft = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
 
+    // 域名即将到期（警告）
     if (daysLeft <= 30) {
-      let warningMessage = '';
       if (LANGUAGE === 'zh') {
-        warningMessage = `⚠️ 警告: 域名 ${DOMAIN} 即将在 ${daysLeft} 天后到期!`;
+        console.log(`⚠️ 警告: 域名 ${DOMAIN} 即将到期，剩余 ${daysLeft} 天！`);
       } else {
-        warningMessage = `⚠️ Warning: Domain ${DOMAIN} is expiring in ${daysLeft} days!`;
+        console.log(`⚠️ Warning: Domain ${DOMAIN} expiring in ${daysLeft} days!`);
       }
+      
       if (NOTIFY_WARNINGS && notifier) {
-        if (LANGUAGE === 'zh') {
-          await notifier.send(`⚠️ 域名 ${DOMAIN} 天到期`, warningMessage);
-        } else {
-          await notifier.send(`⚠️ Domain ${DOMAIN} Expiring Soon`, warningMessage);
-        }
+        const title = LANGUAGE === 'zh' ? `⚠️ 域名 ${DOMAIN} 即将到期` : `⚠️ Domain ${DOMAIN} Expiring Soon`;
+        const content = LANGUAGE === 'zh' ? `域名 ${DOMAIN} 即将在 ${daysLeft} 天后到期!` : `Domain ${DOMAIN} is expiring in ${daysLeft} days!`;
+        await notifier.send(title, content);
       }
-    } else {
-      let successMessage = '';
+    } 
+    // 域名状态正常（成功）
+    else {
       if (LANGUAGE === 'zh') {
-        successMessage = `✅ 域名 ${DOMAIN} 有效期剩余 ${daysLeft} 天。`;
+        console.log(`✅ 域名 ${DOMAIN} 状态正常，剩余 ${daysLeft} 天有效期`);
       } else {
-        successMessage = `✅ Domain ${DOMAIN} is valid for another ${daysLeft} days.`;
+        console.log(`✅ Domain ${DOMAIN} is valid, ${daysLeft} days remaining`);
       }
+      
       if (NOTIFY_SUCCESS && notifier) {
-        if (LANGUAGE === 'zh') {
-          await notifier.send(`✅ 域名 ${DOMAIN} 状态`, successMessage);
-        } else {
-          await notifier.send(`✅ Domain ${DOMAIN} Status`, successMessage);
-        }
+        const title = LANGUAGE === 'zh' ? `✅ 域名 ${DOMAIN} 状态正常` : `✅ Domain ${DOMAIN} Status`;
+        const content = LANGUAGE === 'zh' ? `域名 ${DOMAIN} 有效期剩余 ${daysLeft} 天。` : `Domain ${DOMAIN} is valid for another ${daysLeft} days.`;
+        await notifier.send(title, content);
       }
     }
   } catch (error) {
+    // API 接口错误
     if (error.response) {
       const { code, message } = error.response.data;
-      let apiErrorMessage = '';
-      if (LANGUAGE === 'zh') {
-        apiErrorMessage = `API 错误: ${message} (代码: ${code})`;
-      } else {
-        apiErrorMessage = `API Error: ${message} (Code: ${code})`;
-      }
+      const errMsg = LANGUAGE === 'zh' 
+        ? `❌ API请求失败: ${message} (错误码: ${code})` 
+        : `❌ API Error: ${message} (Code: ${code})`;
+      
+      console.log(errMsg);
+      
       if (NOTIFY_ERRORS && notifier) {
-        if (LANGUAGE === 'zh') {
-          await notifier.send(`❌ API 错误：${DOMAIN}`, apiErrorMessage);
-        } else {
-          await notifier.send(`❌ API Error for ${DOMAIN}`, apiErrorMessage);
-        }
+        await notifier.send(`❌ API错误：${DOMAIN}`, errMsg);
       }
-    } else {
-      const requestErrorMessage = `Request failed: ${error.message}`;
+    } 
+    // 网络/请求错误
+    else {
+      const errMsg = LANGUAGE === 'zh'
+        ? `❌ 网络请求失败: ${error.message}`
+        : `❌ Request failed: ${error.message}`;
+      
+      console.log(errMsg);
+      
       if (NOTIFY_ERRORS && notifier) {
-        if (LANGUAGE === 'zh') {
-          await notifier.send(`❌ 请求错误：${DOMAIN}`, requestErrorMessage);
-        } else {
-          await notifier.send(`❌ Request Error for ${DOMAIN}`, requestErrorMessage);
-        }
+        await notifier.send(`❌ 请求错误：${DOMAIN}`, errMsg);
       }
     }
   }

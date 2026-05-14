@@ -94,7 +94,10 @@ const notifier = createNotifier();
           }));
         }
 
-        console.log(`✅ [${i + 1}] ${item.email} | ${item.checkinMsg} | 剩余 ${item.leftDays} | 积分 ${item.points}`);
+        console.log(`✅ [${i + 1}] ${item.email}`);
+        console.log(`${item.checkinMsg}`);
+        console.log(`当前积分 ${item.points}`);
+        console.log(`剩余天数 ${item.leftDays}`);
 
       } catch (err) {
         let msg = `签到错误：${err.message}`;
@@ -114,20 +117,18 @@ const notifier = createNotifier();
 
     // ===== 汇总 =====
     const summaryLines = results.map(r => {
-      const plansStr = r.plans.length > 0
-        ? r.plans.map(p => `${p.planType}(${p.days}天/${p.points}分)`).join(', ')
-        : 'N/A';
+      const ciRes = r.checkinMsg.includes("Checkin!") 
+        ? `✅ 成功，获得${r.checkinMsg.match(/\d+/)?.[0] || 0}积分` : "⚠️ " + r.checkinMsg;
       return [
-        `📋 账号 ${r.index}:`,
-        `   邮箱: ${r.email}`,
-        `   签到: ${r.checkinMsg}`,
-        `   剩余: ${r.leftDays}`,
-        `   积分: ${r.points}`,
-        `   套餐: ${plansStr}`,
+        `📋账号 ${r.index}:`,
+        `邮箱: ${r.email}`,
+        `签到: ${ciRes}`,
+        `剩余天数: ${r.leftDays}`,
+        `当前积分: ${r.points}`,
       ].join('\n');
     });
 
-    const summary = `🚀 GLaDOS 签到结果\n${'─'.repeat(40)}\n${summaryLines.join('\n')}`;
+    const summary = `🚀 GLaDOS 签到结果\n${'─'.repeat(3)}\n${summaryLines.join('\n')}`;
     console.log('\n' + summary);
 
     // 签到成功邮件通知
