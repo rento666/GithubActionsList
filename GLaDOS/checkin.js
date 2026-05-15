@@ -53,38 +53,37 @@ const notifier = createNotifier();
 
         // ===== 签到 =====
         console.log(`🔐 正在签到 [${i + 1}/${cookies.length}]...`);
-        const checkinRes = await axios.post(CHECKIN_API, `{"token":"${BASE_URL}"}`, {
-          headers: { ...commonHeaders, 'referer': CHECKIN_API },
-        });
-        const checkinData = checkinRes.data;
-        if (checkinData?.code) {
-          throw new Error(checkinData?.message || '签到接口返回错误');
+        try {
+          const checkinRes = await axios.post(CHECKIN_API, `{"token":"${BASE_URL}"}`, {
+            headers: { ...commonHeaders, 'referer': CHECKIN_API },
+          });
+          const checkinData = checkinRes.data;
+          if (checkinData?.code) {
+            throw new Error(checkinData?.message || '签到接口返回错误');
+          }
+          item.checkinMsg = checkinData?.message || '签到成功';
+        } catch (err) {
+          if (err.message.includes("Today's observation logged.")) {
+            item.checkinMsg = '今日已签到';
+          } else {
+            throw err;
+          }
         }
-        item.checkinMsg = checkinData?.message || '签到成功';
 
-        // ===== 状态 =====
-        const statusRes = await axios.get(STATUS_API, {
-          headers: { ...commonHeaders, 'referer': STATUS_API },
-        });
+        // ===== 查询状态与积分（签到成功或已签到都需要） =====
+        const [statusRes, pointsRes] = await Promise.all([
+          axios.get(STATUS_API, { headers: { ...commonHeaders, 'referer': STATUS_API } }),
+          axios.get(POINTS_API, { headers: { ...commonHeaders, 'referer': POINTS_API } }),
+        ]);
+
         const statusData = statusRes.data;
-        if (statusData?.code) {
-          throw new Error(statusData?.message || '状态接口返回错误');
-        }
-
+        if (statusData?.code) throw new Error(statusData?.message || '状态接口返回错误');
         const email = statusData.data?.email || 'N/A';
-        // 邮箱脱敏
         item.email = email.replace(/^(.{2})(.*)(@.*)$/, (_, a, b, c) => a + b.replace(/./g, '*') + c);
         item.leftDays = `${Number(statusData.data?.leftDays || 0).toFixed(0)} 天`;
 
-        // ===== 积分 =====
-        const pointsRes = await axios.get(POINTS_API, {
-          headers: { ...commonHeaders, 'referer': POINTS_API },
-        });
         const pointsData = pointsRes.data;
-        if (pointsData?.code) {
-          throw new Error(pointsData?.message || '积分接口返回错误');
-        }
-
+        if (pointsData?.code) throw new Error(pointsData?.message || '积分接口返回错误');
         item.points = Number(pointsData.points || 0).toFixed(0);
         if (pointsData.plans) {
           item.plans = Object.entries(pointsData.plans).map(([key, val]) => ({
@@ -100,16 +99,11 @@ const notifier = createNotifier();
         console.log(`剩余天数 ${item.leftDays}`);
 
       } catch (err) {
-        let msg = `签到错误：${err.message}`;
-        if (err.message.includes("Today's observation logged.")) {
-          msg = '今日已签到';
-        }
-        item.checkinMsg = msg;
-        item.email = 'N/A';
-        item.leftDays = 'N/A';
-        item.points = 'N/A';
-        item.plans = [];
-        console.error(`❌ [${i + 1}] ${msg}`);
+        item.checkinMsg = item.checkinMsg || `签到错误：${err.message}`;
+        item.email = item.email || 'N/A';
+        item.leftDays = item.leftDays || 'N/A';
+        item.points = item.points || 'N/A';
+        console.error(`❌ [${i + 1}] ${err.message}`);
       }
 
       results.push(item);
