@@ -75,6 +75,7 @@ jobs:
       - name: Save result to keep-alive branch
         if: steps.switch.outputs.skip != 'true' && always()
         run: |
+          git stash --include-untracked || true
           git fetch origin keep-alive 2>/dev/null || true
           if git show-ref --verify --quiet refs/remotes/origin/keep-alive; then
             git checkout -B keep-alive origin/keep-alive

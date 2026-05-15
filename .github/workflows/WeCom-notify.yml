@@ -53,6 +53,7 @@ jobs:
       - name: Fetch keep-alive data
         if: steps.switch.outputs.skip != 'true'
         run: |
+          git stash --include-untracked || true
           git fetch origin keep-alive 2>/dev/null || true
           # 将 keep-alive 分支的 data 目录检出到当前工作区
           if git show-ref --verify --quiet refs/remotes/origin/keep-alive; then
