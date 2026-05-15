@@ -62,6 +62,7 @@ jobs:
           node GLaDOS/checkin.js 2>&1 | tee /tmp/script-output.txt
         env:
           GLA_COOKIE: ${{ secrets.GLA_COOKIE }}
+          GLA_AUTO_EXCHANGE: ${{ vars.GLA_AUTO_EXCHANGE }}
           GLA_NOTIFY_SUCCESS: ${{ vars.GLA_NOTIFY_SUCCESS }}
           GLA_NOTIFY_ERRORS: ${{ vars.GLA_NOTIFY_ERRORS }}
           NOTIFY_SMTP_HOST: ${{ secrets.NOTIFY_SMTP_HOST }}

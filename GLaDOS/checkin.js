@@ -185,7 +185,7 @@ const notifier = createNotifier();
               console.error(`❌ [${i + 1}] ${item.exchangeMsg}`);
             }
           }
-
+        }
       } catch (err) {
         item.checkinMsg = item.checkinMsg || `签到错误：${err.message}`;
         item.email = item.email || 'N/A';
