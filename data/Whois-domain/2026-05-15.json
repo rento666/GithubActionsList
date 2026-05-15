@@ -1,15 +1,21 @@
 {
   "title": "Whois",
-  "content": "✅ 域名 caihongtu.com 状态正常，剩余 302 天有效期",
+  "content": "域名监控结果",
   "items": [
     {
       "header": "caihongtu.com",
-      "texts": [
-        "状态: ✅ 域名 caihongtu.com 状态正常",
-        "剩余天数: 302 天"
+      "lists": [
+        {
+          "key": "状态",
+          "value": "✅ 域名 caihongtu.com 状态正常"
+        },
+        {
+          "key": "剩余天数",
+          "value": "302 天"
+        }
       ]
     }
   ],
-  "description": "20:07:50",
-  "updatedAt": "20:07:50"
+  "description": "21:21:38",
+  "updatedAt": "21:21:38"
 }
