@@ -95,8 +95,6 @@ jobs:
           node keep-alive/update.js
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          # 只添加 JSON 文件，删除旧的 JSONL 文件
-          find data/ -name "data-*.txt" -delete 2>/dev/null || true
           git add "data/"
           git diff --staged --quiet || git commit -m "📝 GLaDOS签到数据 $(date +'%Y-%m-%d')"
           git push origin keep-alive

@@ -57,8 +57,12 @@ jobs:
           git fetch origin keep-alive 2>/dev/null || true
           # 将 keep-alive 分支的 data 目录检出到当前工作区
           if git show-ref --verify --quiet refs/remotes/origin/keep-alive; then
-            git checkout origin/keep-alive -- data/
-            echo "✅ 已拉取 keep-alive 分支数据"
+            if git ls-tree --name-only origin/keep-alive data/ 2>/dev/null | head -1 | grep -q .; then
+              git checkout origin/keep-alive -- data/
+              echo "✅ 已拉取 keep-alive 分支数据"
+            else
+              echo "⚠️ keep-alive 分支上无 data/ 目录，跳过"
+            fi
           else
             echo "⚠️ keep-alive 分支不存在，跳过"
           fi
