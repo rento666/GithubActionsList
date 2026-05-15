@@ -76,7 +76,7 @@ if (require.main === module) {
     console.log(result.message);
 
     // 输出结构化 JSON 供 keep-alive 使用
-    const statusText = result.message.split('，')[0] || result.message;
+    const statusText = result.status;
     const structuredData = buildStructuredOutput({
       title: 'Whois',
       content: '🌐 监控结果',

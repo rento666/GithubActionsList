@@ -127,26 +127,26 @@ function buildMarkdownV2(records, dateStr) {
     }
 
     if (data.items && data.items.length > 0) {
-      lines.push('');
-      // 构建表格
-      const tableLines = ['| 项目 | 状态 |', '| :--- | :--- |'];
       for (const item of data.items) {
+        lines.push('');
+        if (item.header) {
+          lines.push(item.header);
+        }
         const entries = item.lists || (item.texts ? textsToLists(item.texts) : []);
         if (entries.length > 0) {
+          lines.push('| 项目 | 状态 |');
+          lines.push('| :--- | :--- |');
           for (const entry of entries) {
-            tableLines.push(`| ${entry.key} | ${entry.value} |`);
+            lines.push(`| ${entry.key} | ${entry.value} |`);
           }
-        } else if (item.header) {
-          tableLines.push(`| ${item.header} | - |`);
         }
       }
-      lines.push(...tableLines);
     }
   }
 
   lines.push('');
   lines.push('---');
-  lines.push(`[查看项目](https://github.com/rento666/GithubActionsList)`);
+  lines.push(`[查看项目 | GitHub](https://github.com/rento666/GithubActionsList)`);
 
   return lines.join('\n');
 }

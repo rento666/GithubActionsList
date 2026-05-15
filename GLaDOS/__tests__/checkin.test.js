@@ -47,11 +47,11 @@ describe('parseExchangeConfig', () => {
 
 describe('maskEmail', () => {
   test('正常邮箱脱敏', () => {
-    expect(maskEmail('username@gmail.com')).toBe('us******@gmail.com');
+    expect(maskEmail('username@gmail.com')).toBe('us***@gmail.com');
   });
 
   test('短邮箱', () => {
-    expect(maskEmail('ab@c.d')).toBe('ab@c.d');
+    expect(maskEmail('ab@c.d')).toBe('ab***@c.d');
   });
 
   test("'N/A' 原样返回", () => {

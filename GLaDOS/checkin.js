@@ -22,13 +22,19 @@ function parseExchangeConfig(raw) {
 }
 
 /**
- * 邮箱脱敏：us***@gmail.com
+ * 邮箱脱敏：us***@gmail.com（固定3个*）
  * @param {string} email
  * @returns {string}
  */
 function maskEmail(email) {
   if (!email || email === 'N/A') return 'N/A';
-  return email.replace(/^(.{2})(.*)(@.*)$/, (_, a, b, c) => a + b.replace(/./g, '*') + c);
+  
+  // 匹配：前缀(至少1位) + @ + 后缀
+  return email.replace(/^(.+?)(@.+)$/, (_, prefix, suffix) => {
+    // 只保留前2位，后面固定 3 个 *
+    const show = prefix.slice(0, 2);
+    return show + '***' + suffix;
+  });
 }
 
 /**
@@ -63,11 +69,11 @@ function buildResultLists(item) {
   const lists = [
     kv('邮箱', item.email),
     kv('签到', formatCheckinStatus(item.checkinMsg)),
-    kv('天数', item.leftDays),
+    kv('剩余天数', item.leftDays),
     kv('积分', item.points),
   ];
   if (item.exchangeMsg) {
-    lists.push(kv('兑换', formatExchangeStatus(item.exchangeMsg)));
+    lists.push(kv('自动兑换', formatExchangeStatus(item.exchangeMsg)));
   }
   return lists;
 }
@@ -173,7 +179,8 @@ async function runCheckin({ cookies, exchangeConfig, axiosInstance }) {
           if (currentPoints >= maxPlan.points) {
             best = maxPlan;
           } else {
-            skipReason = `积分不足（需要 ${maxPlan.points}，当前 ${currentPoints}）`;
+            // skipReason = `积分不足（需要 ${maxPlan.points}，当前 ${currentPoints}）`;
+            skipReason = `积分不足`;
           }
         } else {
           const threshold = exchangeConfig;
@@ -185,7 +192,8 @@ async function runCheckin({ cookies, exchangeConfig, axiosInstance }) {
               best = affordable[0];
             } else {
               const minPoints = Math.min(...item.plans.map(p => p.points || Infinity));
-              skipReason = `积分不足（最低需要 ${isFinite(minPoints) ? minPoints : '?'} 积分）`;
+              // skipReason = `积分不足（最低需要 ${isFinite(minPoints) ? minPoints : '?'} 积分）`;
+              skipReason = `积分不足`;
             }
           }
         }
