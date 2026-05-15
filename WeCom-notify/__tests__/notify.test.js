@@ -124,7 +124,7 @@ describe('buildMarkdownV2', () => {
     expect(md).toContain('# 📋 日报 2026-05-15');
     expect(md).toContain('## GLaDOS `16:30:00`');
     expect(md).toContain('> 🚀 签到结果');
-    expect(md).toContain('账号 1');
+    expect(md).toContain('**账号 1**');
     expect(md).toContain('| 项目 | 状态 |');
     expect(md).toContain('| :--- | :--- |');
     expect(md).toContain('| 邮箱 | xx@xx.com |');
@@ -156,7 +156,7 @@ describe('buildMarkdownV2', () => {
 
     expect(md).toContain('## Whois');
     expect(md).toContain('> 域名监控结果');
-    expect(md).toContain('caihongtu.com');
+    expect(md).toContain('**caihongtu.com**');
     expect(md).toContain('| 状态 | ✅ 域名 caihongtu.com 状态正常 |');
     expect(md).toContain('| 剩余天数 | 302 天 |');
   });
@@ -206,8 +206,8 @@ describe('buildMarkdownV2', () => {
 
     expect(md).toContain('## GLaDOS `16:30:00`');
     expect(md).toContain('## Whois `16:31:00`');
-    expect(md).toContain('账号 1');
-    expect(md).toContain('example.com');
+    expect(md).toContain('**账号 1**');
+    expect(md).toContain('**example.com**');
     expect(md).toContain('| 签到 | 成功 |');
     expect(md).toContain('| 状态 | 正常 |');
   });
@@ -254,8 +254,8 @@ describe('buildMarkdownV2', () => {
 
     const md = buildMarkdownV2(records, '2026-05-15');
 
-    expect(md).toContain('账号 1');
-    expect(md).toContain('账号 2');
+    expect(md).toContain('**账号 1**');
+    expect(md).toContain('**账号 2**');
     expect(md).toContain('| 邮箱 | a@b.com |');
     expect(md).toContain('| 邮箱 | c@d.com |');
   });

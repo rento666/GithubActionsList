@@ -130,14 +130,18 @@ function buildMarkdownV2(records, dateStr) {
       for (const item of data.items) {
         lines.push('');
         if (item.header) {
-          lines.push(item.header);
+          lines.push(`**${item.header}**`);
+          lines.push('');
         }
         const entries = item.lists || (item.texts ? textsToLists(item.texts) : []);
         if (entries.length > 0) {
           lines.push('| 项目 | 状态 |');
+          lines.push('');
           lines.push('| :--- | :--- |');
+          lines.push('');
           for (const entry of entries) {
             lines.push(`| ${entry.key} | ${entry.value} |`);
+            lines.push('');
           }
         }
       }
