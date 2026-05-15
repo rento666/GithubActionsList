@@ -1,6 +1,7 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const { textsToLists } = require('../utils/structured-output');
 
 /**
  * 企业微信推送模块
@@ -120,57 +121,30 @@ function buildTemplateCard(records, dateStr) {
       },
       card_action: {
         type: 1,
-        url: 'https://github.com',
+        url: 'https://github.com/rento666/GithubActionsList',
       }
     };
   }
 
-  // 构建二级标题+文本列表
+  // 构建 horizontal_content_list，从 lists 读取 key/value
   const horizontalContentList = [];
 
-  for (const record of records.slice(0, 6)) {
+  for (const record of records) {
     const { source, data } = record;
 
-    // 添加主标题行
-    if (data.content) {
-      horizontalContentList.push({
-        keyname: truncate(data.title || source, 5),
-        value: truncate(data.content, 26)
-      });
-    }
-
-    // 添加各条目的简要信息
     if (data.items && data.items.length > 0) {
-      for (const item of data.items.slice(0, 2)) {
-        const firstText = item.texts && item.texts[0] ? item.texts[0] : item.header;
-        horizontalContentList.push({
-          keyname: truncate(item.header || source, 5),
-          value: truncate(firstText, 26)
-        });
+      for (const item of data.items) {
+        // 优先使用 lists 格式，降级到 texts
+        const entries = item.lists || (item.texts ? textsToLists(item.texts) : []);
+        for (const entry of entries) {
+          horizontalContentList.push({
+            keyname: truncate(entry.key, 5),
+            value: truncate(entry.value, 26)
+          });
+        }
       }
     }
   }
-
-  // 构建引用文本区域（详细预览）
-  const quoteLines = [];
-  for (const record of records.slice(0, 3)) {
-    const { data } = record;
-    const title = data.title || record.source;
-    const time = data.description || '';
-    const content = data.content || '';
-
-    let line = `[${title}]`;
-    if (time) line += ` ${time}`;
-    if (content) line += ` ${content}`;
-
-    quoteLines.push(line);
-  }
-  const quoteText = truncate(quoteLines.join('\n'), 150);
-
-  // 构建二级普通文本
-  const sourceCount = records.length;
-  const totalItems = records.reduce((sum, r) => sum + (r.data.items?.length || 0), 0);
-  const subTitleText = `共 ${sourceCount} 个数据源，${totalItems} 条记录`;
 
   // 构建模板卡片
   const templateCard = {
@@ -183,26 +157,12 @@ function buildTemplateCard(records, dateStr) {
       title: `📋 日报 ${dateStr}`,
       desc: 'GithubActionsList 每日数据汇总',
     },
-    emphasis_content: {
-      title: String(sourceCount),
-      desc: '数据源数',
-    },
-    sub_title_text: truncate(subTitleText, 112),
     horizontal_content_list: horizontalContentList.slice(0, 6),
     card_action: {
       type: 1,
-      url: 'https://github.com',
+      url: 'https://github.com/rento666/GithubActionsList',
     }
   };
-
-  // 引用文本区域（有内容才添加）
-  if (quoteText) {
-    templateCard.quote_area = {
-      type: 0,
-      title: '内容预览',
-      quote_text: quoteText,
-    };
-  }
 
   return templateCard;
 }
@@ -253,7 +213,7 @@ async function sendErrorNotification(errorSummary) {
         },
         card_action: {
           type: 1,
-          url: 'https://github.com',
+          url: 'https://github.com/rento666/GithubActionsList',
         }
       },
     }, {

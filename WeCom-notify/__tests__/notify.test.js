@@ -22,7 +22,7 @@ describe('readDataFiles', () => {
       title: 'GLaDOS',
       description: '16:30:00',
       content: '🚀 签到结果',
-      items: [{ header: '账号 1', texts: ['邮箱: xx@xx.com'] }]
+      items: [{ header: '账号 1', lists: [{ key: '邮箱', value: 'xx@xx.com' }] }]
     }));
 
     const records = readDataFiles(tmpDir, '2026-05-15');
@@ -114,7 +114,7 @@ describe('buildTemplateCard', () => {
           title: 'GLaDOS',
           description: '16:30:00',
           content: '🚀 签到结果',
-          items: [{ header: '账号 1', texts: ['邮箱: xx@xx.com', '签到: 成功'] }]
+          items: [{ header: '账号 1', lists: [{ key: '邮箱', value: 'xx@xx.com' }, { key: '签到', value: '成功' }] }]
         }
       }
     ];
@@ -126,9 +126,9 @@ describe('buildTemplateCard', () => {
     expect(card.source.desc_color).toBe(0);
     expect(card.main_title.title).toBe('📋 日报 2026-05-15');
     expect(card.main_title.desc).toBe('GithubActionsList 每日数据汇总');
-    expect(card.emphasis_content.title).toBe('1');
-    expect(card.emphasis_content.desc).toBe('数据源数');
-    expect(card.card_action).toBeDefined();
+    expect(card.card_action.url).toBe('https://github.com/rento666/GithubActionsList');
+    expect(card).not.toHaveProperty('emphasis_content');
+    expect(card).not.toHaveProperty('sub_title_text');
   });
 
   test('不含 jump_list', () => {
@@ -143,15 +143,58 @@ describe('buildTemplateCard', () => {
     expect(card).not.toHaveProperty('jump_list');
   });
 
+  test('horizontal_content_list 从 lists 读取', () => {
+    const records = [
+      {
+        source: 'GLaDOS',
+        data: {
+          title: 'GLaDOS',
+          items: [
+            { header: '账号 1', lists: [{ key: '邮箱', value: 'a@b.com' }, { key: '签到', value: '成功' }] }
+          ]
+        }
+      }
+    ];
+    const card = buildTemplateCard(records, '2026-05-15');
+
+    expect(card.horizontal_content_list).toHaveLength(2);
+    expect(card.horizontal_content_list[0]).toEqual({ keyname: '邮箱', value: 'a@b.com' });
+    expect(card.horizontal_content_list[1]).toEqual({ keyname: '签到', value: '成功' });
+  });
+
+  test('horizontal_content_list 兼容旧 texts 格式', () => {
+    const records = [
+      {
+        source: 'GLaDOS',
+        data: {
+          title: 'GLaDOS',
+          items: [
+            { header: '账号 1', texts: ['邮箱: a@b.com', '签到: 成功'] }
+          ]
+        }
+      }
+    ];
+    const card = buildTemplateCard(records, '2026-05-15');
+
+    expect(card.horizontal_content_list).toHaveLength(2);
+    expect(card.horizontal_content_list[0]).toEqual({ keyname: '邮箱', value: 'a@b.com' });
+    expect(card.horizontal_content_list[1]).toEqual({ keyname: '签到', value: '成功' });
+  });
+
   test('horizontal_content_list 最多 6 项', () => {
     const records = [
-      { source: 'test1', data: { title: 'test1', content: '内容1', items: [] } },
-      { source: 'test2', data: { title: 'test2', content: '内容2', items: [] } },
-      { source: 'test3', data: { title: 'test3', content: '内容3', items: [] } },
-      { source: 'test4', data: { title: 'test4', content: '内容4', items: [] } },
-      { source: 'test5', data: { title: 'test5', content: '内容5', items: [] } },
-      { source: 'test6', data: { title: 'test6', content: '内容6', items: [] } },
-      { source: 'test7', data: { title: 'test7', content: '内容7', items: [] } },
+      {
+        source: 'test1',
+        data: {
+          title: 'test1',
+          items: [
+            { header: 'a', lists: [{ key: 'k1', value: 'v1' }, { key: 'k2', value: 'v2' }] },
+            { header: 'b', lists: [{ key: 'k3', value: 'v3' }, { key: 'k4', value: 'v4' }] },
+            { header: 'c', lists: [{ key: 'k5', value: 'v5' }, { key: 'k6', value: 'v6' }] },
+            { header: 'd', lists: [{ key: 'k7', value: 'v7' }] }
+          ]
+        }
+      }
     ];
     const card = buildTemplateCard(records, '2026-05-15');
 
@@ -161,8 +204,11 @@ describe('buildTemplateCard', () => {
   test('horizontal_content_list 的 keyname 截断', () => {
     const records = [
       {
-        source: 'VeryLongSource',
-        data: { title: 'VeryLongSource', content: 'ok', items: [] }
+        source: 'test',
+        data: {
+          title: 'test',
+          items: [{ header: 'a', lists: [{ key: 'VeryLongKeyName', value: 'ok' }] }]
+        }
       }
     ];
     const card = buildTemplateCard(records, '2026-05-15');
@@ -174,7 +220,10 @@ describe('buildTemplateCard', () => {
     const records = [
       {
         source: 'test',
-        data: { title: 'test', content: 'a'.repeat(50), items: [] }
+        data: {
+          title: 'test',
+          items: [{ header: 'a', lists: [{ key: 'k', value: 'a'.repeat(50) }] }]
+        }
       }
     ];
     const card = buildTemplateCard(records, '2026-05-15');
@@ -183,7 +232,7 @@ describe('buildTemplateCard', () => {
     expect(value.length).toBeLessThanOrEqual(27); // 26 + …
   });
 
-  test('quote_area 包含内容预览', () => {
+  test('quote_area 已移除', () => {
     const records = [
       {
         source: 'GLaDOS',
@@ -192,21 +241,17 @@ describe('buildTemplateCard', () => {
     ];
     const card = buildTemplateCard(records, '2026-05-15');
 
-    expect(card.quote_area).toBeDefined();
-    expect(card.quote_area.type).toBe(0);
-    expect(card.quote_area.title).toBe('内容预览');
-    expect(card.quote_area.quote_text).toContain('GLaDOS');
+    expect(card).not.toHaveProperty('quote_area');
   });
 
-  test('sub_title_text 包含来源汇总', () => {
+  test('sub_title_text 已移除', () => {
     const records = [
-      { source: 'GLaDOS', data: { title: 'GLaDOS', content: '签到', items: [{ header: 'a', texts: ['x', 'y'] }] } },
-      { source: 'Whois', data: { title: 'Whois', content: '监控', items: [{ header: 'b', texts: ['z'] }] } },
+      { source: 'GLaDOS', data: { title: 'GLaDOS', content: '签到', items: [{ header: 'a', lists: [{ key: 'x', value: 'y' }] }] } },
+      { source: 'Whois', data: { title: 'Whois', content: '监控', items: [{ header: 'b', lists: [{ key: 'z', value: 'w' }] }] } },
     ];
     const card = buildTemplateCard(records, '2026-05-15');
 
-    expect(card.sub_title_text).toContain('2 个数据源');
-    expect(card.sub_title_text).toContain('2 条记录');
+    expect(card).not.toHaveProperty('sub_title_text');
   });
 
   test('空数据也能正常构建', () => {
@@ -214,5 +259,6 @@ describe('buildTemplateCard', () => {
 
     expect(card.main_title.title).toContain('日报');
     expect(card.main_title.desc).toBe('暂无数据');
+    expect(card.card_action.url).toBe('https://github.com/rento666/GithubActionsList');
   });
 });
