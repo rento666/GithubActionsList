@@ -20,7 +20,6 @@ Just <b>fork</b> it to your repository, fill in the environment variables, and s
 ## Features 🎯
 
 - [x] Use free and public APIs to monitor domain status via WHOIS, with email notifications when domains become available [Doc](./Whois-domain/Doc.md)
-- [x] XBGame auto login & check-in [Doc](./XBGame/Doc.md)
 - [x] GLaDOS auto check-in [Doc](./GLaDOS/Doc.md)
 - [x] Repository keep-alive - periodically push data to the keep-alive branch to prevent GitHub from disabling scheduled workflows [Doc](./keep-alive/Doc.md)
 - [x] WeCom robot daily report - read the day's data from keep-alive branch and push to WeChat Work group [Doc](./WeCom-notify/Doc.md)
@@ -36,7 +35,6 @@ Each script supports **Repository Variables** to control whether it runs on sche
 | Variable | Purpose | Default |
 |:---------|:--------|:--------|
 | `ENABLE_ALL` | Global switch, set to `false` to stop all scheduled runs | Unset (enabled) |
-| `ENABLE_XBGAME` | XBGame check-in switch | Unset (enabled) |
 | `ENABLE_WHOIS` | Domain monitor switch | Unset (enabled) |
 | `ENABLE_KEEP_ALIVE` | Keep-alive switch | Unset (enabled) |
 | `ENABLE_GLADOS` | GLaDOS check-in switch | Unset (enabled) |

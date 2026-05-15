@@ -20,7 +20,6 @@
 ## 脚本列表 🎯
 
 - [x] 利用免费、公益API执行WHOIS监控域名状态，可注册申请时发送邮件通知 [环境变量文档 | Doc](./Whois-domain/Doc.md)
-- [x] 小白游戏网自动登录+签到 [环境变量文档 | Doc](./XBGame/Doc.md)
 - [x] GLaDOS 自动签到 [环境变量文档 | Doc](./GLaDOS/Doc.md)
 - [x] 仓库保活 - 定期向 keep-alive 分支推送数据，防止 GitHub 禁用定时 Workflow [环境变量文档 | Doc](./keep-alive/Doc.md)
 - [x] 企业微信机器人日报推送 - 读取 keep-alive 分支当天数据推送到企业微信群 [环境变量文档 | Doc](./WeCom-notify/Doc.md)
@@ -36,7 +35,6 @@
 | 变量名 | 作用 | 默认 |
 |:-------|:-----|:-----|
 | `ENABLE_ALL` | 全局总开关，`false` 时所有脚本停止定时运行 | 未设置（启用） |
-| `ENABLE_XBGAME` | XBGame 签到开关 | 未设置（启用） |
 | `ENABLE_WHOIS` | 域名监控开关 | 未设置（启用） |
 | `ENABLE_KEEP_ALIVE` | 仓库保活开关 | 未设置（启用） |
 | `ENABLE_GLADOS` | GLaDOS 签到开关 | 未设置（启用） |
