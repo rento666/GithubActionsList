@@ -114,6 +114,22 @@ function parseTextAsStructured(text, source, time) {
 }
 
 /**
+ * 将 texts 数组转换为 lists 数组（键值对格式）
+ * @param {string[]} texts - 字符串数组，每项格式为 "key: value"
+ * @returns {Array<{key: string, value: string}>}
+ */
+function textsToLists(texts) {
+  if (!Array.isArray(texts)) return [];
+  return texts
+    .map(line => {
+      const match = line.match(/^([^:]+)[:：]\s*(.*)$/);
+      if (!match) return null;
+      return { key: match[1].trim(), value: match[2].trim() };
+    })
+    .filter(Boolean);
+}
+
+/**
  * 格式化数据为结构化 JSON 字符串
  * @param {object} data - 结构化数据
  * @returns {string} JSON 字符串
@@ -188,5 +204,6 @@ module.exports = {
   formatAsJSON,
   formatAsJSONL,
   parseJSONLLine,
-  detectFormat
+  detectFormat,
+  textsToLists
 };

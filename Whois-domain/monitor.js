@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { createNotifier } = require('../utils/notify');
+const { buildStructuredOutput, kv } = require('../utils/structured-output');
 
 /**
  * 检查域名到期状态
@@ -75,17 +76,18 @@ if (require.main === module) {
     console.log(result.message);
 
     // 输出结构化 JSON 供 keep-alive 使用
-    const structuredData = {
+    const statusText = result.message.split('，')[0] || result.message;
+    const structuredData = buildStructuredOutput({
       title: 'Whois',
-      content: result.message,
+      content: '域名监控结果',
       items: [{
         header: DOMAIN,
-        texts: [
-          `状态: ${result.message.split('，')[0] || result.message}`,
-          `剩余天数: ${result.daysLeft} 天`
+        lists: [
+          kv('状态', statusText),
+          kv('剩余天数', `${result.daysLeft} 天`)
         ]
       }]
-    };
+    });
     console.log('__KEEP_ALIVE_JSON__');
     console.log(JSON.stringify(structuredData));
     console.log('__KEEP_ALIVE_JSON_END__');
