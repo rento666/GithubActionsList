@@ -136,12 +136,9 @@ function buildMarkdownV2(records, dateStr) {
         const entries = item.lists || (item.texts ? textsToLists(item.texts) : []);
         if (entries.length > 0) {
           lines.push('| 项目 | 状态 |');
-          lines.push('');
-          lines.push('| :--- | :--- |');
-          lines.push('');
+          lines.push('| :---: | :---: |');
           for (const entry of entries) {
             lines.push(`| ${entry.key} | ${entry.value} |`);
-            lines.push('');
           }
         }
       }
