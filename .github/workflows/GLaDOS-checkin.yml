@@ -88,6 +88,8 @@ jobs:
             git checkout -B keep-alive
           fi
           export KEEP_ALIVE_SOURCE="GLaDOS"
+          # 使用 main 分支上的最新 keep-alive 脚本，避免 keep-alive 分支上的旧版本导致数据格式不一致
+          git checkout main -- keep-alive/update.js keep-alive/formatter.js
           # 只传递结构化 JSON 数据，不再传递原始 console 输出
           if [ -n "${{ env.KEEP_ALIVE_JSON }}" ]; then
             export KEEP_ALIVE_JSON="${{ env.KEEP_ALIVE_JSON }}"
