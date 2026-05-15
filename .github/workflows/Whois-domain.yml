@@ -88,15 +88,16 @@ jobs:
           else
             git checkout -B keep-alive
           fi
-          export KEEP_ALIVE_DATA="$(cat /tmp/script-output.txt)"
           export KEEP_ALIVE_SOURCE="Whois-domain"
-          # 如果有结构化 JSON，也传递它
+          # 只传递结构化 JSON 数据，不再传递原始 console 输出
           if [ -n "${{ env.KEEP_ALIVE_JSON }}" ]; then
             export KEEP_ALIVE_JSON="${{ env.KEEP_ALIVE_JSON }}"
           fi
           node keep-alive/update.js
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          # 只添加 JSON 文件，删除旧的 JSONL 文件
+          find data/ -name "data-*.txt" -delete 2>/dev/null || true
           git add "data/"
           git diff --staged --quiet || git commit -m "📝 域名监控数据 $(date +'%Y-%m-%d')"
           git push origin keep-alive

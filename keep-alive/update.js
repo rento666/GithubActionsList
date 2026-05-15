@@ -77,12 +77,6 @@ function appendRecord({ source, content, structured, baseDir, now: customNow }) 
   const jsonContent = formatAsJSON(record);
   fs.writeFileSync(filePath, jsonContent, 'utf-8');
 
-  // 同时追加到 JSONL 文件（保持向后兼容）
-  const jsonlPath = path.join(dataDir, `data-${day}.txt`);
-  if (content) {
-    fs.appendFileSync(jsonlPath, formatAsJSONL(source, time, content), 'utf-8');
-  }
-
   return { filePath, source, time };
 }
 
