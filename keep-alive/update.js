@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { parseStructuredData, parseTextAsStructured, formatAsJSON, formatAsJSONL, detectFormat } = require('./formatter');
+const { parseStructuredData, parseTextAsStructured, formatAsJSON, formatAsJSONL, detectFormat, textsToLists } = require('./formatter');
 
 /**
  * 保活脚本 - 将数据保存到 data/{source}/{YYYY-MM-DD}.json
@@ -43,10 +43,24 @@ function appendRecord({ source, content, structured, baseDir, now: customNow }) 
   // 优先使用传入的结构化数据
   let record;
   if (structured && typeof structured === 'object') {
+    // 转换 texts 为 lists（向后兼容）
+    const items = (structured.items || []).map(item => {
+      if (item.lists) {
+        return item;
+      }
+      if (item.texts) {
+        return {
+          header: item.header,
+          lists: textsToLists(item.texts)
+        };
+      }
+      return item;
+    });
     record = {
       ...structured,
       title: structured.title || source,
       description: structured.description || time,
+      items,
       updatedAt: time
     };
   } else if (content) {
