@@ -74,6 +74,22 @@ if (require.main === module) {
     const result = await checkDomain({ apiUrl: API_URL, domain: DOMAIN, language: LANGUAGE });
     console.log(result.message);
 
+    // 输出结构化 JSON 供 keep-alive 使用
+    const structuredData = {
+      title: 'Whois',
+      content: result.message,
+      items: [{
+        header: DOMAIN,
+        texts: [
+          `状态: ${result.message.split('，')[0] || result.message}`,
+          `剩余天数: ${result.daysLeft} 天`
+        ]
+      }]
+    };
+    console.log('__KEEP_ALIVE_JSON__');
+    console.log(JSON.stringify(structuredData));
+    console.log('__KEEP_ALIVE_JSON_END__');
+
     if (result.status === 'warning' && NOTIFY_WARNINGS && notifier) {
       const title = isZh ? `⚠️ 域名 ${DOMAIN} 即将到期` : `⚠️ Domain ${DOMAIN} Expiring Soon`;
       const content = isZh ? `域名 ${DOMAIN} 即将在 ${result.daysLeft} 天后到期!` : `Domain ${DOMAIN} is expiring in ${result.daysLeft} days!`;

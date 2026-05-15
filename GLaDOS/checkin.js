@@ -236,6 +236,19 @@ if (require.main === module) {
       const summary = `🚀 GLaDOS 签到结果\n${'─'.repeat(3)}\n${summaryLines.join('\n')}`;
       console.log('\n' + summary);
 
+      // 输出结构化 JSON 供 keep-alive 使用
+      const structuredData = {
+        title: 'GLaDOS',
+        content: '🚀 GLaDOS 签到结果',
+        items: results.map(r => ({
+          header: `账号 ${r.index}`,
+          texts: formatResult(r).split('\n').slice(1) // 去掉 "📋账号 X:" 行
+        }))
+      };
+      console.log('__KEEP_ALIVE_JSON__');
+      console.log(JSON.stringify(structuredData));
+      console.log('__KEEP_ALIVE_JSON_END__');
+
       // 签到成功邮件通知
       if (NOTIFY_SUCCESS && notifier) {
         await notifier.send('✅ GLaDOS 签到结果', summary);

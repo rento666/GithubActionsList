@@ -58,7 +58,12 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
-          node Whois-domain/monitor.js 2>&1 | tee /tmp/script-output.txt
+          output=$(node Whois-domain/monitor.js 2>&1)
+          echo "$output"
+          echo "$output" > /tmp/script-output.txt
+          # 提取结构化 JSON 数据
+          json_data=$(echo "$output" | sed -n '/__KEEP_ALIVE_JSON__/,/__KEEP_ALIVE_JSON_END__/p' | sed '1d;$d')
+          echo "KEEP_ALIVE_JSON=$json_data" >> $GITHUB_ENV
         env:
           WHOIS_API_URL: ${{ secrets.WHOIS_API_URL }}
           WHOIS_DOMAIN: ${{ secrets.WHOIS_DOMAIN }}
@@ -85,6 +90,10 @@ jobs:
           fi
           export KEEP_ALIVE_DATA="$(cat /tmp/script-output.txt)"
           export KEEP_ALIVE_SOURCE="Whois-domain"
+          # 如果有结构化 JSON，也传递它
+          if [ -n "${{ env.KEEP_ALIVE_JSON }}" ]; then
+            export KEEP_ALIVE_JSON="${{ env.KEEP_ALIVE_JSON }}"
+          fi
           node keep-alive/update.js
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"

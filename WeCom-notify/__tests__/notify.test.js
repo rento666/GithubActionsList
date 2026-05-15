@@ -1,46 +1,83 @@
-const { parseDataFile, truncate, buildTemplateCard } = require('../notify');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const { readDataFiles, truncate, buildTemplateCard } = require('../notify');
 
-describe('parseDataFile', () => {
-  test('正常 JSONL 解析', () => {
-    const content = [
-      '{"source":"GLaDOS","time":"08:30:00","text":"签到成功"}',
-      '{"source":"Whois","time":"09:00:00","text":"域名正常"}',
-    ].join('\n');
+describe('readDataFiles', () => {
+  let tmpDir;
 
-    const records = parseDataFile(content);
-    expect(records).toHaveLength(2);
-    expect(records[0]).toEqual({ source: 'GLaDOS', time: '08:30:00', text: '签到成功' });
-    expect(records[1]).toEqual({ source: 'Whois', time: '09:00:00', text: '域名正常' });
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'notify-test-'));
   });
 
-  test('含 \\n 的 text 被还原为换行', () => {
-    const content = '{"source":"GLaDOS","time":"08:30:00","text":"第一行\\n第二行"}';
-    const records = parseDataFile(content);
-    expect(records[0].text).toBe('第一行\n第二行');
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  test('空文件返回空数组', () => {
-    expect(parseDataFile('')).toEqual([]);
-    expect(parseDataFile('  \n  ')).toEqual([]);
-  });
+  test('读取结构化 JSON 文件', () => {
+    // 创建测试数据（readDataFiles 期望传入 data 目录）
+    const dataDir = path.join(tmpDir, 'GLaDOS');
+    fs.mkdirSync(dataDir, { recursive: true });
+    fs.writeFileSync(path.join(dataDir, '2026-05-15.json'), JSON.stringify({
+      title: 'GLaDOS',
+      description: '16:30:00',
+      content: '🚀 签到结果',
+      items: [{ header: '账号 1', texts: ['邮箱: xx@xx.com'] }]
+    }));
 
-  test('非法行被跳过', () => {
-    const content = [
-      '{"source":"GLaDOS","time":"08:30:00","text":"ok"}',
-      'this is not json',
-      '{"source":"Whois","time":"09:00:00","text":"fine"}',
-    ].join('\n');
-
-    const records = parseDataFile(content);
-    expect(records).toHaveLength(2);
+    const records = readDataFiles(tmpDir, '2026-05-15');
+    expect(records).toHaveLength(1);
     expect(records[0].source).toBe('GLaDOS');
-    expect(records[1].source).toBe('Whois');
+    expect(records[0].data.title).toBe('GLaDOS');
+    expect(records[0].data.content).toBe('🚀 签到结果');
   });
 
-  test('缺少 source 字段时默认 unknown', () => {
-    const content = '{"time":"08:30:00","text":"ok"}';
-    const records = parseDataFile(content);
-    expect(records[0].source).toBe('unknown');
+  test('读取多个 source 的数据', () => {
+    // GLaDOS 数据
+    const gladosDir = path.join(tmpDir, 'GLaDOS');
+    fs.mkdirSync(gladosDir, { recursive: true });
+    fs.writeFileSync(path.join(gladosDir, '2026-05-15.json'), JSON.stringify({
+      title: 'GLaDOS',
+      content: '签到',
+      items: []
+    }));
+
+    // Whois 数据
+    const whoisDir = path.join(tmpDir, 'Whois');
+    fs.mkdirSync(whoisDir, { recursive: true });
+    fs.writeFileSync(path.join(whoisDir, '2026-05-15.json'), JSON.stringify({
+      title: 'Whois',
+      content: '监控',
+      items: []
+    }));
+
+    const records = readDataFiles(tmpDir, '2026-05-15');
+    expect(records).toHaveLength(2);
+  });
+
+  test('目录不存在返回空数组', () => {
+    const records = readDataFiles(tmpDir, '2026-05-15');
+    expect(records).toEqual([]);
+  });
+
+  test('无效 JSON 尝试读取旧 JSONL 格式', () => {
+    const dataDir = path.join(tmpDir, 'GLaDOS');
+    fs.mkdirSync(dataDir, { recursive: true });
+
+    // 创建无效的 JSON 文件
+    fs.writeFileSync(path.join(dataDir, '2026-05-15.json'), 'invalid json');
+
+    // 创建旧 JSONL 文件
+    fs.writeFileSync(path.join(dataDir, 'data-15.txt'), JSON.stringify({
+      source: 'GLaDOS',
+      time: '16:30:00',
+      text: '签到成功'
+    }) + '\n');
+
+    const records = readDataFiles(tmpDir, '2026-05-15');
+    expect(records.length).toBeGreaterThan(0);
+    expect(records[0].source).toBe('GLaDOS');
+    expect(records[0].data.content).toBe('签到成功');
   });
 });
 
@@ -69,20 +106,19 @@ describe('truncate', () => {
 });
 
 describe('buildTemplateCard', () => {
-  const makeRecords = (n) => {
-    const records = [];
-    for (let i = 0; i < n; i++) {
-      records.push({
-        source: i < 3 ? 'GLaDOS' : 'Whois',
-        time: `08:${String(i).padStart(2, '0')}:00`,
-        text: `第${i + 1}条数据内容`,
-      });
-    }
-    return records;
-  };
-
   test('基本卡片结构正确', () => {
-    const records = makeRecords(2);
+    const records = [
+      {
+        source: 'GLaDOS',
+        data: {
+          title: 'GLaDOS',
+          description: '16:30:00',
+          content: '🚀 签到结果',
+          items: [{ header: '账号 1', texts: ['邮箱: xx@xx.com', '签到: 成功'] }]
+        }
+      }
+    ];
+
     const card = buildTemplateCard(records, '2026-05-15');
 
     expect(card.card_type).toBe('text_notice');
@@ -90,42 +126,70 @@ describe('buildTemplateCard', () => {
     expect(card.source.desc_color).toBe(0);
     expect(card.main_title.title).toBe('📋 日报 2026-05-15');
     expect(card.main_title.desc).toBe('GithubActionsList 每日数据汇总');
-    expect(card.emphasis_content.title).toBe('2');
-    expect(card.emphasis_content.desc).toBe('今日条目数');
+    expect(card.emphasis_content.title).toBe('1');
+    expect(card.emphasis_content.desc).toBe('数据源数');
+    expect(card.card_action).toBeDefined();
   });
 
-  test('不含 jump_list 和 card_action', () => {
-    const records = makeRecords(2);
+  test('不含 jump_list', () => {
+    const records = [
+      {
+        source: 'GLaDOS',
+        data: { title: 'GLaDOS', content: '签到', items: [] }
+      }
+    ];
     const card = buildTemplateCard(records, '2026-05-15');
 
     expect(card).not.toHaveProperty('jump_list');
-    expect(card).not.toHaveProperty('card_action');
   });
 
   test('horizontal_content_list 最多 6 项', () => {
-    const records = makeRecords(10);
+    const records = [
+      { source: 'test1', data: { title: 'test1', content: '内容1', items: [] } },
+      { source: 'test2', data: { title: 'test2', content: '内容2', items: [] } },
+      { source: 'test3', data: { title: 'test3', content: '内容3', items: [] } },
+      { source: 'test4', data: { title: 'test4', content: '内容4', items: [] } },
+      { source: 'test5', data: { title: 'test5', content: '内容5', items: [] } },
+      { source: 'test6', data: { title: 'test6', content: '内容6', items: [] } },
+      { source: 'test7', data: { title: 'test7', content: '内容7', items: [] } },
+    ];
     const card = buildTemplateCard(records, '2026-05-15');
 
     expect(card.horizontal_content_list).toHaveLength(6);
   });
 
-  test('horizontal_content_list 的 keyname 截断（≤5字）', () => {
-    const records = [{ source: 'VeryLongSource', time: '08:30:00', text: 'ok' }];
+  test('horizontal_content_list 的 keyname 截断', () => {
+    const records = [
+      {
+        source: 'VeryLongSource',
+        data: { title: 'VeryLongSource', content: 'ok', items: [] }
+      }
+    ];
     const card = buildTemplateCard(records, '2026-05-15');
 
     expect(card.horizontal_content_list[0].keyname.length).toBeLessThanOrEqual(6); // 5字 + 可能的…
   });
 
-  test('horizontal_content_list 的 value 截断（≤26字+…）', () => {
-    const records = [{ source: 'test', time: '08:30:00', text: 'a'.repeat(50) }];
+  test('horizontal_content_list 的 value 截断', () => {
+    const records = [
+      {
+        source: 'test',
+        data: { title: 'test', content: 'a'.repeat(50), items: [] }
+      }
+    ];
     const card = buildTemplateCard(records, '2026-05-15');
 
     const value = card.horizontal_content_list[0].value;
     expect(value.length).toBeLessThanOrEqual(27); // 26 + …
   });
 
-  test('quote_area 包含前 3 条记录预览', () => {
-    const records = makeRecords(5);
+  test('quote_area 包含内容预览', () => {
+    const records = [
+      {
+        source: 'GLaDOS',
+        data: { title: 'GLaDOS', description: '16:30:00', content: '签到结果', items: [] }
+      }
+    ];
     const card = buildTemplateCard(records, '2026-05-15');
 
     expect(card.quote_area).toBeDefined();
@@ -135,20 +199,20 @@ describe('buildTemplateCard', () => {
   });
 
   test('sub_title_text 包含来源汇总', () => {
-    const records = makeRecords(5);
+    const records = [
+      { source: 'GLaDOS', data: { title: 'GLaDOS', content: '签到', items: [{ header: 'a', texts: ['x', 'y'] }] } },
+      { source: 'Whois', data: { title: 'Whois', content: '监控', items: [{ header: 'b', texts: ['z'] }] } },
+    ];
     const card = buildTemplateCard(records, '2026-05-15');
 
-    expect(card.sub_title_text).toContain('共 5 条记录');
-    expect(card.sub_title_text).toContain('GLaDOS');
-    expect(card.sub_title_text).toContain('Whois');
+    expect(card.sub_title_text).toContain('2 个数据源');
+    expect(card.sub_title_text).toContain('2 条记录');
   });
 
-  test('单条记录也能正常构建', () => {
-    const records = [{ source: 'test', time: '', text: 'hello' }];
-    const card = buildTemplateCard(records, '2026-05-15');
+  test('空数据也能正常构建', () => {
+    const card = buildTemplateCard([], '2026-05-15');
 
-    expect(card.horizontal_content_list).toHaveLength(1);
-    expect(card.horizontal_content_list[0].keyname).toBe('test');
-    expect(card.horizontal_content_list[0].value).toBe('hello');
+    expect(card.main_title.title).toContain('日报');
+    expect(card.main_title.desc).toBe('暂无数据');
   });
 });
