@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { readDataFiles, truncate, buildTemplateCard } = require('../notify');
+const { readDataFiles, truncate, buildMarkdownV2 } = require('../notify');
 
 describe('readDataFiles', () => {
   let tmpDir;
@@ -105,8 +105,8 @@ describe('truncate', () => {
   });
 });
 
-describe('buildTemplateCard', () => {
-  test('基本卡片结构正确', () => {
+describe('buildMarkdownV2', () => {
+  test('基本 markdown 结构正确', () => {
     const records = [
       {
         source: 'GLaDOS',
@@ -119,50 +119,47 @@ describe('buildTemplateCard', () => {
       }
     ];
 
-    const card = buildTemplateCard(records, '2026-05-15');
+    const md = buildMarkdownV2(records, '2026-05-15');
 
-    expect(card.card_type).toBe('text_notice');
-    expect(card.source.desc).toBe('GithubActionsList');
-    expect(card.source.desc_color).toBe(0);
-    expect(card.main_title.title).toBe('📋 日报 2026-05-15');
-    expect(card.main_title.desc).toBe('GithubActionsList 每日数据汇总');
-    expect(card.card_action.url).toBe('https://github.com/rento666/GithubActionsList');
-    expect(card).not.toHaveProperty('emphasis_content');
-    expect(card).not.toHaveProperty('sub_title_text');
+    expect(md).toContain('# 📋 日报 2026-05-15');
+    expect(md).toContain('## GLaDOS `16:30:00`');
+    expect(md).toContain('> 🚀 签到结果');
+    expect(md).toContain('| 项目 | 状态 |');
+    expect(md).toContain('| :--- | :--- |');
+    expect(md).toContain('| 邮箱 | xx@xx.com |');
+    expect(md).toContain('| 签到 | 成功 |');
+    expect(md).toContain('[查看项目](https://github.com/rento666/GithubActionsList)');
   });
 
-  test('不含 jump_list', () => {
+  test('从 lists 读取数据生成表格', () => {
     const records = [
       {
-        source: 'GLaDOS',
-        data: { title: 'GLaDOS', content: '签到', items: [] }
-      }
-    ];
-    const card = buildTemplateCard(records, '2026-05-15');
-
-    expect(card).not.toHaveProperty('jump_list');
-  });
-
-  test('horizontal_content_list 从 lists 读取', () => {
-    const records = [
-      {
-        source: 'GLaDOS',
+        source: 'Whois',
         data: {
-          title: 'GLaDOS',
+          title: 'Whois',
+          content: '域名监控结果',
           items: [
-            { header: '账号 1', lists: [{ key: '邮箱', value: 'a@b.com' }, { key: '签到', value: '成功' }] }
+            {
+              header: 'caihongtu.com',
+              lists: [
+                { key: '状态', value: '✅ 域名 caihongtu.com 状态正常' },
+                { key: '剩余天数', value: '302 天' }
+              ]
+            }
           ]
         }
       }
     ];
-    const card = buildTemplateCard(records, '2026-05-15');
 
-    expect(card.horizontal_content_list).toHaveLength(2);
-    expect(card.horizontal_content_list[0]).toEqual({ keyname: '邮箱', value: 'a@b.com' });
-    expect(card.horizontal_content_list[1]).toEqual({ keyname: '签到', value: '成功' });
+    const md = buildMarkdownV2(records, '2026-05-15');
+
+    expect(md).toContain('## Whois');
+    expect(md).toContain('> 域名监控结果');
+    expect(md).toContain('| 状态 | ✅ 域名 caihongtu.com 状态正常 |');
+    expect(md).toContain('| 剩余天数 | 302 天 |');
   });
 
-  test('horizontal_content_list 兼容旧 texts 格式', () => {
+  test('兼容旧 texts 格式', () => {
     const records = [
       {
         source: 'GLaDOS',
@@ -174,91 +171,84 @@ describe('buildTemplateCard', () => {
         }
       }
     ];
-    const card = buildTemplateCard(records, '2026-05-15');
 
-    expect(card.horizontal_content_list).toHaveLength(2);
-    expect(card.horizontal_content_list[0]).toEqual({ keyname: '邮箱', value: 'a@b.com' });
-    expect(card.horizontal_content_list[1]).toEqual({ keyname: '签到', value: '成功' });
+    const md = buildMarkdownV2(records, '2026-05-15');
+
+    expect(md).toContain('| 邮箱 | a@b.com |');
+    expect(md).toContain('| 签到 | 成功 |');
   });
 
-  test('horizontal_content_list 最多 6 项', () => {
-    const records = [
-      {
-        source: 'test1',
-        data: {
-          title: 'test1',
-          items: [
-            { header: 'a', lists: [{ key: 'k1', value: 'v1' }, { key: 'k2', value: 'v2' }] },
-            { header: 'b', lists: [{ key: 'k3', value: 'v3' }, { key: 'k4', value: 'v4' }] },
-            { header: 'c', lists: [{ key: 'k5', value: 'v5' }, { key: 'k6', value: 'v6' }] },
-            { header: 'd', lists: [{ key: 'k7', value: 'v7' }] }
-          ]
-        }
-      }
-    ];
-    const card = buildTemplateCard(records, '2026-05-15');
-
-    expect(card.horizontal_content_list).toHaveLength(6);
-  });
-
-  test('horizontal_content_list 的 keyname 截断', () => {
-    const records = [
-      {
-        source: 'test',
-        data: {
-          title: 'test',
-          items: [{ header: 'a', lists: [{ key: 'VeryLongKeyName', value: 'ok' }] }]
-        }
-      }
-    ];
-    const card = buildTemplateCard(records, '2026-05-15');
-
-    expect(card.horizontal_content_list[0].keyname.length).toBeLessThanOrEqual(6); // 5字 + 可能的…
-  });
-
-  test('horizontal_content_list 的 value 截断', () => {
-    const records = [
-      {
-        source: 'test',
-        data: {
-          title: 'test',
-          items: [{ header: 'a', lists: [{ key: 'k', value: 'a'.repeat(50) }] }]
-        }
-      }
-    ];
-    const card = buildTemplateCard(records, '2026-05-15');
-
-    const value = card.horizontal_content_list[0].value;
-    expect(value.length).toBeLessThanOrEqual(27); // 26 + …
-  });
-
-  test('quote_area 已移除', () => {
+  test('多 source 数据', () => {
     const records = [
       {
         source: 'GLaDOS',
-        data: { title: 'GLaDOS', description: '16:30:00', content: '签到结果', items: [] }
+        data: {
+          title: 'GLaDOS',
+          description: '16:30:00',
+          content: '签到完成',
+          items: [{ header: '账号 1', lists: [{ key: '签到', value: '成功' }] }]
+        }
+      },
+      {
+        source: 'Whois',
+        data: {
+          title: 'Whois',
+          description: '16:31:00',
+          content: '监控正常',
+          items: [{ header: 'example.com', lists: [{ key: '状态', value: '正常' }] }]
+        }
       }
     ];
-    const card = buildTemplateCard(records, '2026-05-15');
 
-    expect(card).not.toHaveProperty('quote_area');
+    const md = buildMarkdownV2(records, '2026-05-15');
+
+    expect(md).toContain('## GLaDOS `16:30:00`');
+    expect(md).toContain('## Whois `16:31:00`');
+    expect(md).toContain('| 签到 | 成功 |');
+    expect(md).toContain('| 状态 | 正常 |');
   });
 
-  test('sub_title_text 已移除', () => {
+  test('空数据返回提示', () => {
+    const md = buildMarkdownV2([], '2026-05-15');
+
+    expect(md).toContain('# 📋 日报 2026-05-15');
+    expect(md).toContain('暂无数据');
+  });
+
+  test('无 items 时只显示标题和内容', () => {
     const records = [
-      { source: 'GLaDOS', data: { title: 'GLaDOS', content: '签到', items: [{ header: 'a', lists: [{ key: 'x', value: 'y' }] }] } },
-      { source: 'Whois', data: { title: 'Whois', content: '监控', items: [{ header: 'b', lists: [{ key: 'z', value: 'w' }] }] } },
+      {
+        source: 'test',
+        data: {
+          title: 'Test',
+          content: '测试内容',
+          items: []
+        }
+      }
     ];
-    const card = buildTemplateCard(records, '2026-05-15');
 
-    expect(card).not.toHaveProperty('sub_title_text');
+    const md = buildMarkdownV2(records, '2026-05-15');
+
+    expect(md).toContain('## Test');
+    expect(md).toContain('> 测试内容');
+    expect(md).not.toContain('| 项目 | 状态 |');
   });
 
-  test('空数据也能正常构建', () => {
-    const card = buildTemplateCard([], '2026-05-15');
+  test('无 description 时不显示时间', () => {
+    const records = [
+      {
+        source: 'test',
+        data: {
+          title: 'Test',
+          content: '测试',
+          items: [{ header: 'a', lists: [{ key: 'k', value: 'v' }] }]
+        }
+      }
+    ];
 
-    expect(card.main_title.title).toContain('日报');
-    expect(card.main_title.desc).toBe('暂无数据');
-    expect(card.card_action.url).toBe('https://github.com/rento666/GithubActionsList');
+    const md = buildMarkdownV2(records, '2026-05-15');
+
+    expect(md).toContain('## Test');
+    expect(md).not.toContain('## Test `');
   });
 });

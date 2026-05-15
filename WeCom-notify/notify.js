@@ -102,79 +102,65 @@ function truncate(str, maxLen) {
 }
 
 /**
- * 根据结构化数据构建企业微信文本通知模板卡片
+ * 根据结构化数据构建 markdown_v2 内容
  * @param {Array} records - 数据记录数组 [{source, data}]
  * @param {string} dateStr - 日期字符串
- * @returns {object} template_card 对象
+ * @returns {string} markdown_v2 内容
  */
-function buildTemplateCard(records, dateStr) {
+function buildMarkdownV2(records, dateStr) {
   if (records.length === 0) {
-    return {
-      card_type: 'text_notice',
-      source: {
-        desc: 'GithubActionsList',
-        desc_color: 0,
-      },
-      main_title: {
-        title: `📋 日报 ${dateStr}`,
-        desc: '暂无数据',
-      },
-      card_action: {
-        type: 1,
-        url: 'https://github.com/rento666/GithubActionsList',
-      }
-    };
+    return `# 📋 日报 ${dateStr}\n\n暂无数据`;
   }
 
-  // 构建 horizontal_content_list，从 lists 读取 key/value
-  const horizontalContentList = [];
+  const lines = [`# 📋 日报 ${dateStr}`];
 
   for (const record of records) {
-    const { source, data } = record;
+    const { data } = record;
+    const title = data.title || record.source;
+    const desc = data.description || '';
+
+    lines.push('');
+    lines.push(`## ${title}${desc ? ` \`${desc}\`` : ''}`);
+
+    if (data.content) {
+      lines.push(`> ${data.content}`);
+    }
 
     if (data.items && data.items.length > 0) {
+      lines.push('');
+      // 构建表格
+      const tableLines = ['| 项目 | 状态 |', '| :--- | :--- |'];
       for (const item of data.items) {
-        // 优先使用 lists 格式，降级到 texts
         const entries = item.lists || (item.texts ? textsToLists(item.texts) : []);
-        for (const entry of entries) {
-          horizontalContentList.push({
-            keyname: truncate(entry.key, 5),
-            value: truncate(entry.value, 26)
-          });
+        if (entries.length > 0) {
+          for (const entry of entries) {
+            tableLines.push(`| ${entry.key} | ${entry.value} |`);
+          }
+        } else if (item.header) {
+          tableLines.push(`| ${item.header} | - |`);
         }
       }
+      lines.push(...tableLines);
     }
   }
 
-  // 构建模板卡片
-  const templateCard = {
-    card_type: 'text_notice',
-    source: {
-      desc: 'GithubActionsList',
-      desc_color: 0,
-    },
-    main_title: {
-      title: `📋 日报 ${dateStr}`,
-      desc: 'GithubActionsList 每日数据汇总',
-    },
-    horizontal_content_list: horizontalContentList.slice(0, 6),
-    card_action: {
-      type: 1,
-      url: 'https://github.com/rento666/GithubActionsList',
-    }
-  };
+  lines.push('');
+  lines.push('---');
+  lines.push(`[查看项目](https://github.com/rento666/GithubActionsList)`);
 
-  return templateCard;
+  return lines.join('\n');
 }
 
 /**
- * 推送企业微信通知
- * @param {object} templateCard - 模板卡片对象
+ * 推送企业微信 markdown_v2 通知
+ * @param {string} markdownContent - markdown_v2 内容
  */
-async function sendWeComNotification(templateCard) {
+async function sendWeComNotification(markdownContent) {
   const res = await axios.post(WEBHOOK_URL, {
-    msgtype: 'template_card',
-    template_card: templateCard,
+    msgtype: 'markdown_v2',
+    markdown_v2: {
+      content: markdownContent,
+    },
   }, {
     headers: { 'content-type': 'application/json' },
   });
@@ -190,31 +176,11 @@ async function sendWeComNotification(templateCard) {
  */
 async function sendErrorNotification(errorSummary) {
   try {
+    const markdownContent = `# ❌ 日报推送失败\n\n请检查日志排查原因\n\n## 错误信息\n\n\`\`\`\n${truncate(errorSummary, 500)}\n\`\`\`\n\n---\n\n[查看项目](https://github.com/rento666/GithubActionsList)`;
     await axios.post(WEBHOOK_URL, {
-      msgtype: 'template_card',
-      template_card: {
-        card_type: 'text_notice',
-        source: {
-          desc: 'GithubActionsList',
-          desc_color: 2,
-        },
-        main_title: {
-          title: '❌ 日报推送失败',
-          desc: '请检查日志排查原因',
-        },
-        emphasis_content: {
-          title: 'ERROR',
-          desc: '推送异常',
-        },
-        quote_area: {
-          type: 0,
-          title: '错误信息',
-          quote_text: truncate(errorSummary, 150),
-        },
-        card_action: {
-          type: 1,
-          url: 'https://github.com/rento666/GithubActionsList',
-        }
+      msgtype: 'markdown_v2',
+      markdown_v2: {
+        content: markdownContent,
       },
     }, {
       headers: { 'content-type': 'application/json' },
@@ -228,7 +194,7 @@ module.exports = {
   readDataFiles,
   parseJSONLFile,
   truncate,
-  buildTemplateCard,
+  buildMarkdownV2,
   sendWeComNotification,
   sendErrorNotification
 };
@@ -263,10 +229,10 @@ if (require.main === module) {
 
       console.log(`📊 共 ${records.length} 条数据记录`);
 
-      const templateCard = buildTemplateCard(records, dateStr);
+      const markdownContent = buildMarkdownV2(records, dateStr);
 
       console.log('📤 正在推送企业微信机器人...');
-      await sendWeComNotification(templateCard);
+      await sendWeComNotification(markdownContent);
       console.log(`✅ 推送成功！${dateStr} 日报已发送到企业微信群`);
 
     } catch (error) {

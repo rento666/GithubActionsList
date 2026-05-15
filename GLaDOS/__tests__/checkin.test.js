@@ -80,8 +80,8 @@ describe('formatResult', () => {
     expect(result).toContain('📋账号 1:');
     expect(result).toContain('邮箱: us***@gmail.com');
     expect(result).toContain('签到: ✅ 成功');
-    expect(result).toContain('剩余天数: 30 天');
-    expect(result).toContain('当前积分: 520');
+    expect(result).toContain('天数: 30 天');
+    expect(result).toContain('积分: 520');
   });
 
   test('含兑换信息时追加兑换行', () => {
@@ -225,7 +225,7 @@ describe('runCheckin', () => {
     mockStatusAndPoints(100, 30, { plan_a: { points: 500, days: 30 } });
 
     const results = await runCheckin({ cookies: [cookie], exchangeConfig: true });
-    expect(results[0].exchangeMsg).toContain('积分不足以兑换最大方案');
+    expect(results[0].exchangeMsg).toContain('积分不足');
   });
 
   test('自动兑换 - 数字阈值模式，达到阈值兑换', async () => {

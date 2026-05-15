@@ -63,8 +63,8 @@ function buildResultLists(item) {
   const lists = [
     kv('邮箱', item.email),
     kv('签到', formatCheckinStatus(item.checkinMsg)),
-    kv('剩余天数', item.leftDays),
-    kv('当前积分', item.points),
+    kv('天数', item.leftDays),
+    kv('积分', item.points),
   ];
   if (item.exchangeMsg) {
     lists.push(kv('兑换', formatExchangeStatus(item.exchangeMsg)));
@@ -173,7 +173,7 @@ async function runCheckin({ cookies, exchangeConfig, axiosInstance }) {
           if (currentPoints >= maxPlan.points) {
             best = maxPlan;
           } else {
-            skipReason = `积分不足以兑换最大方案（需要 ${maxPlan.points}，当前 ${currentPoints}）`;
+            skipReason = `积分不足（需要 ${maxPlan.points}，当前 ${currentPoints}）`;
           }
         } else {
           const threshold = exchangeConfig;
@@ -185,7 +185,7 @@ async function runCheckin({ cookies, exchangeConfig, axiosInstance }) {
               best = affordable[0];
             } else {
               const minPoints = Math.min(...item.plans.map(p => p.points || Infinity));
-              skipReason = `积分不足，无法兑换（最低需要 ${isFinite(minPoints) ? minPoints : '?'} 积分）`;
+              skipReason = `积分不足（最低需要 ${isFinite(minPoints) ? minPoints : '?'} 积分）`;
             }
           }
         }

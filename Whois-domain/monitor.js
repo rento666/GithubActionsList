@@ -79,7 +79,7 @@ if (require.main === module) {
     const statusText = result.message.split('，')[0] || result.message;
     const structuredData = buildStructuredOutput({
       title: 'Whois',
-      content: '域名监控结果',
+      content: '🌐 监控结果',
       items: [{
         header: DOMAIN,
         lists: [
