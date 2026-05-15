@@ -120,6 +120,7 @@ function buildMarkdownV2(records, dateStr) {
     const desc = data.description || '';
 
     lines.push('');
+    lines.push('---');
     lines.push(`## ${title}${desc ? ` \`${desc}\`` : ''}`);
 
     if (data.content) {
@@ -135,7 +136,7 @@ function buildMarkdownV2(records, dateStr) {
         }
         const entries = item.lists || (item.texts ? textsToLists(item.texts) : []);
         if (entries.length > 0) {
-          lines.push('| 项目 | 状态 |');
+          lines.push('| 标题 | 内容 |');
           lines.push('| :---: | :---: |');
           for (const entry of entries) {
             lines.push(`| ${entry.key} | ${entry.value} |`);

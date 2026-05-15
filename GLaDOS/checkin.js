@@ -22,7 +22,7 @@ function parseExchangeConfig(raw) {
 }
 
 /**
- * 邮箱脱敏：us***@gmail.com（固定3个*）
+ * 邮箱脱敏：u***@gmail.com（固定3个*）
  * @param {string} email
  * @returns {string}
  */
@@ -31,8 +31,8 @@ function maskEmail(email) {
   
   // 匹配：前缀(至少1位) + @ + 后缀
   return email.replace(/^(.+?)(@.+)$/, (_, prefix, suffix) => {
-    // 只保留前2位，后面固定 3 个 *
-    const show = prefix.slice(0, 2);
+    // 只保留前1位，后面固定 3 个 *
+    const show = prefix.slice(0, 1);
     return show + '***' + suffix;
   });
 }
