@@ -1,0 +1,21 @@
+{
+  "title": "Whois",
+  "content": "🌐 监控结果",
+  "items": [
+    {
+      "header": "caihongtu.com",
+      "lists": [
+        {
+          "key": "状态",
+          "value": "error"
+        },
+        {
+          "key": "剩余天数",
+          "value": "-1 天"
+        }
+      ]
+    }
+  ],
+  "description": "13:07:45",
+  "updatedAt": "13:07:45"
+}
