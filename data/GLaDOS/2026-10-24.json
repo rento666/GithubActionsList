@@ -7,65 +7,27 @@
       "lists": [
         {
           "key": "邮箱",
-          "value": "N/A"
+          "value": "7***@qq.com"
         },
         {
           "key": "签到",
-          "value": "⚠️ 签到错误：没有权限"
+          "value": "✅ 成功，获得9积分"
         },
         {
           "key": "剩余天数",
-          "value": "N/A"
+          "value": "102 天"
         },
         {
           "key": "积分",
-          "value": "N/A"
-        }
-      ]
-    },
-    {
-      "header": "账号 2",
-      "lists": [
-        {
-          "key": "邮箱",
-          "value": "N/A"
+          "value": "141"
         },
         {
-          "key": "签到",
-          "value": "⚠️ 签到错误：没有权限"
-        },
-        {
-          "key": "剩余天数",
-          "value": "N/A"
-        },
-        {
-          "key": "积分",
-          "value": "N/A"
-        }
-      ]
-    },
-    {
-      "header": "账号 3",
-      "lists": [
-        {
-          "key": "邮箱",
-          "value": "N/A"
-        },
-        {
-          "key": "签到",
-          "value": "⚠️ 签到错误：没有权限"
-        },
-        {
-          "key": "剩余天数",
-          "value": "N/A"
-        },
-        {
-          "key": "积分",
-          "value": "N/A"
+          "key": "自动兑换",
+          "value": "⚠️ 积分不足"
         }
       ]
     }
   ],
-  "description": "12:52:49",
-  "updatedAt": "12:52:49"
+  "description": "22:41:19",
+  "updatedAt": "22:41:19"
 }
